@@ -718,5 +718,5 @@ def credit_report():
     return render_template('credit_report.html', customers=customers)
 
 if __name__ == '__main__':
-    init_db()  # Only run this manually if you want to reset the database!
+    # init_db()  # Only run this manually if you want to reset the database!
     socketio.run(app, debug=True) 
