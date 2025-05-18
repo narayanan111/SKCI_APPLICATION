@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tax Invoice - {{ invoice.invoice_number }}</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #fff;
+            color: #222;
+            margin: 0;
+            padding: 0;
+        }
+        .invoice-box {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto;
+            padding: 24px 32px;
+            background: #fff;
+            box-sizing: border-box;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 8px;
+        }
+        .header .title {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+        .header .subtitle {
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+        .company-details, .customer-details {
+            font-size: 1em;
+            margin-bottom: 8px;
+        }
+        .company-details {
+            float: left;
+            width: 60%;
+        }
+        .invoice-details {
+            float: right;
+            width: 38%;
+            text-align: right;
+        }
+        .clearfix::after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+        }
+        th, td {
+            border: 1px solid #888;
+            padding: 6px 4px;
+            font-size: 0.98em;
+        }
+        th {
+            background: #f2f2f2;
+            font-weight: bold;
+        }
+        .totals-table td {
+            border: none;
+            font-size: 1em;
+        }
+        .totals-table tr td:first-child {
+            text-align: right;
+        }
+        .totals-table tr td:last-child {
+            text-align: right;
+            width: 120px;
+        }
+        .bank-details, .declaration {
+            font-size: 0.98em;
+            margin-top: 16px;
+        }
+        .signature {
+            float: right;
+            text-align: center;
+            margin-top: 32px;
+            font-size: 1em;
+        }
+        @media print {
+            .print-btn { display: none; }
+            .invoice-box { box-shadow: none; border: none; }
+        }
+        .print-btn {
+            display: block;
+            margin: 16px auto;
+            padding: 8px 24px;
+            font-size: 1.1em;
+            background: #222;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <a href="{{ url_for('view_invoice', invoice_id=invoice.id) }}" class="print-btn" style="background:#888; color:#fff; text-align:center; margin:16px auto 0 auto; display:block; width:160px; text-decoration:none;">&larr; Back</a>
+    <button class="print-btn" onclick="window.print()">Print Invoice</button>
+    <div class="invoice-box">
+        <div class="header">
+            <div class="title">SRI KRISHNA COTTAGE INDUSTRIES</div>
+            <div class="subtitle">E Bellathi Rd, Karamadai, Tamil Nadu 641104</div>
+            <div class="subtitle">Email: karamadaikrishnas98@gmail.com | PH: +91 9384430633</div>
+            <div class="subtitle">GSTIN/UIN: 33AXFPK5612A1Z4 | State: Tamilnadu (33)</div>
+        </div>
+        <div class="clearfix">
+            <div class="company-details">
+                <strong>To:</strong> {{ customer.name }}<br>
+                {% if customer.address %}{{ customer.address }}<br>{% endif %}
+                {% if customer.gstin %}GSTIN: {{ customer.gstin }}<br>{% endif %}
+            </div>
+            <div class="invoice-details">
+                <strong>Invoice No:</strong> {{ invoice.invoice_number }}<br>
+                <strong>Date:</strong> {{ invoice.date.strftime('%d-%m-%Y') }}<br>
+                <strong>Mode of Payment:</strong> {{ invoice.payment_mode }}<br>
+                {% if invoice.vehicle_no %}<strong>Vehicle No:</strong> {{ invoice.vehicle_no }}<br>{% endif %}
+                {% if invoice.delivery_date %}<strong>Delivery Date:</strong> {{ invoice.delivery_date.strftime('%d-%m-%Y') }}<br>{% endif %}
+                {% if invoice.destination %}<strong>Destination:</strong> {{ invoice.destination }}<br>{% endif %}
+            </div>
+        </div>
+        <div style="clear: both;"></div>
+        <table>
+            <thead>
+                <tr>
+                    <th>S.No</th>
+                    <th>Description of Goods</th>
+                    <th>HSN/SAC</th>
+                    <th>Rate</th>
+                    <th>Qty</th>
+                    <th>Disc %</th>
+                    <th>Price</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% set subtotal = 0 %}
+                {% set total_taxable = 0 %}
+                {% set total_cgst = 0 %}
+                {% set total_sgst = 0 %}
+                {% for item in items %}
+                {% set price = item.rate * item.quantity %}
+                {% set discount = price * (item.discount_percent / 100) %}
+                {% set taxable = price - discount %}
+                {% set cgst = taxable * (item.gst_percent/2) / 100 %}
+                {% set sgst = taxable * (item.gst_percent/2) / 100 %}
+                {% set amount = taxable + cgst + sgst %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ item.product.name }}</td>
+                    <td>{{ item.hsn }}</td>
+                    <td>{{ '%.2f'|format(item.rate) }}</td>
+                    <td>{{ '%.2f'|format(item.quantity) }}</td>
+                    <td>{{ '%.2f'|format(item.discount_percent) }}</td>
+                    <td>{{ '%.2f'|format(taxable) }}</td>
+                    <td>{{ '%.2f'|format(amount) }}</td>
+                </tr>
+                {% set subtotal = subtotal + price %}
+                {% set total_taxable = total_taxable + taxable %}
+                {% set total_cgst = total_cgst + cgst %}
+                {% set total_sgst = total_sgst + sgst %}
+                {% endfor %}
+            </tbody>
+        </table>
+        <table class="totals-table" style="margin-top: 8px;">
+            <tr>
+                <td>Sub Total</td>
+                <td>{{ '%.2f'|format(subtotal) }}</td>
+            </tr>
+            <tr>
+                <td>CGST</td>
+                <td>{{ '%.2f'|format(total_cgst) }}</td>
+            </tr>
+            <tr>
+                <td>SGST</td>
+                <td>{{ '%.2f'|format(total_sgst) }}</td>
+            </tr>
+            <tr>
+                <td>Transport Charges</td>
+                <td>{{ '%.2f'|format(invoice.transport_charges) }}</td>
+            </tr>
+            <tr>
+                <td>Round Off</td>
+                <td>{{ '%.2f'|format(invoice.round_off) }}</td>
+            </tr>
+            <tr style="font-weight: bold;">
+                <td>Grand Total</td>
+                <td>{{ '%.2f'|format(invoice.total_amount) }}</td>
+            </tr>
+        </table>
+        <div class="bank-details">
+            <strong>Company's Bank Details</strong><br>
+            Bank Name: INDIAN BANK<br>
+            Account No: 911638608<br>
+            Branch & IFSC code: KARAMADAI & IDIB000K018
+        </div>
+        <div class="declaration">
+            <strong>Declaration</strong><br>
+            We declare that this invoice shows actual price of the goods described and that all particulars are true and correct.
+        </div>
+        <div class="signature">
+            <br><br>
+            For SRI KRISHNA COTTAGE INDUSTRIES<br><br><br>
+            Authorised Signatory
+        </div>
+    </div>
+</body>
+</html> 

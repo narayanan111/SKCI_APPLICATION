@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-7">
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="mb-0">Edit Customer</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" autocomplete="off">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="name" name="name" value="{{ customer.name }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" value="{{ customer.email }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Phone</label>
+                            <input type="text" class="form-control" id="phone" name="phone" value="{{ customer.phone }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Address</label>
+                            <textarea class="form-control" id="address" name="address" rows="2" required>{{ customer.address }}</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="gstin" class="form-label">GSTIN</label>
+                            <input type="text" class="form-control" id="gstin" name="gstin" value="{{ customer.gstin }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="credit_limit" class="form-label">Credit Limit</label>
+                            <input type="number" step="0.01" min="0" class="form-control" id="credit_limit" name="credit_limit" value="{{ customer.credit_limit }}" required>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('customers') }}" class="btn btn-secondary">Back</a>
+                            <button type="submit" class="btn btn-warning">Update Customer</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

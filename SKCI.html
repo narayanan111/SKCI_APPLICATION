@@ -1,0 +1,2733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sri Krishna Cottage Industries - Billing Software</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .login-container {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+        .sidebar {
+            background: linear-gradient(180deg, #4f46e5 0%, #7c3aed 100%);
+        }
+        .nav-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .active-nav {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        .print-btn {
+            background: linear-gradient(to right, #4f46e5, #7c3aed);
+        }
+        .invoice-header {
+            background: linear-gradient(to right, #4f46e5, #7c3aed);
+            color: white;
+        }
+        .product-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .blink {
+            animation: blink 1s infinite;
+        }
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- Login Screen -->
+    <div id="loginScreen" class="flex items-center justify-center min-h-screen login-container">
+        <div class="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-lg">
+            <div class="text-center">
+                <img src="https://via.placeholder.com/100" alt="Logo" class="w-24 h-24 mx-auto rounded-full">
+                <h2 class="mt-6 text-3xl font-extrabold text-gray-900">Sri Krishna Cottage Industries</h2>
+                <p class="mt-2 text-sm text-gray-600">Please sign in to your account</p>
+            </div>
+            <form id="loginForm" class="mt-8 space-y-6">
+                <div class="rounded-md shadow-sm space-y-4">
+                    <div>
+                        <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+                        <input id="username" name="username" type="text" required class="relative block w-full px-3 py-2 mt-1 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" placeholder="Enter username">
+                    </div>
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                        <input id="password" name="password" type="password" required class="relative block w-full px-3 py-2 mt-1 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" placeholder="Enter password">
+                    </div>
+                </div>
+
+                <div>
+                    <button type="submit" class="relative flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md group hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Sign in
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="appScreen" class="hidden">
+        <!-- Sidebar -->
+        <div class="fixed inset-y-0 left-0 z-10 w-64 sidebar">
+            <div class="flex items-center justify-center h-16 px-4 bg-indigo-800">
+                <h1 class="text-xl font-bold text-white">SKCI Billing</h1>
+            </div>
+            <div class="flex flex-col justify-between h-[calc(100%-4rem)] pb-10">
+                <div class="mt-6">
+                    <nav class="px-2 space-y-1">
+                        <a href="#" id="dashboardNav" class="flex items-center px-2 py-2 text-sm font-medium text-white rounded-md nav-item active-nav">
+                            <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                            </svg>
+                            Dashboard
+                        </a>
+                        <a href="#" id="billingNav" class="flex items-center px-2 py-2 text-sm font-medium text-white rounded-md nav-item">
+                            <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"></path>
+                            </svg>
+                            Billing
+                        </a>
+                        <a href="#" id="productsNav" class="flex items-center px-2 py-2 text-sm font-medium text-white rounded-md nav-item">
+                            <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                            </svg>
+                            Products
+                        </a>
+                        <a href="#" id="invoicesNav" class="flex items-center px-2 py-2 text-sm font-medium text-white rounded-md nav-item">
+                            <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                            </svg>
+                            Invoices
+                        </a>
+                        <a href="#" id="reportsNav" class="flex items-center px-2 py-2 text-sm font-medium text-white rounded-md nav-item">
+                            <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            Reports
+                        </a>
+                    </nav>
+                </div>
+                <div class="px-4">
+                    <button id="logoutBtn" class="flex items-center w-full px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                        </svg>
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="pl-64">
+            <!-- Top Navigation -->
+            <div class="sticky top-0 z-20 flex items-center justify-between h-16 px-6 bg-white border-b border-gray-200">
+                <div class="flex items-center">
+                    <h2 id="pageTitle" class="text-lg font-medium text-gray-900">Dashboard</h2>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center">
+                        <span id="currentUser" class="mr-2 text-sm font-medium text-gray-700"></span>
+                        <div class="w-8 h-8 overflow-hidden bg-gray-200 rounded-full">
+                            <img src="https://via.placeholder.com/32" alt="User" class="w-full h-full">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page Content -->
+            <main class="p-6">
+                <!-- Dashboard Content -->
+                <div id="dashboardContent">
+                    <div class="grid grid-cols-1 gap-6 mb-8 md:grid-cols-2 lg:grid-cols-4">
+                        <div class="p-6 bg-white rounded-lg shadow">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-500 truncate">Today's Sales</p>
+                                    <p class="mt-1 text-3xl font-semibold text-gray-900">₹<span id="todaySales">0</span></p>
+                                </div>
+                                <div class="p-3 bg-indigo-100 rounded-full">
+                                    <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-6 bg-white rounded-lg shadow">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-500 truncate">This Month</p>
+                                    <p class="mt-1 text-3xl font-semibold text-gray-900">₹<span id="monthSales">0</span></p>
+                                </div>
+                                <div class="p-3 bg-green-100 rounded-full">
+                                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-6 bg-white rounded-lg shadow">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-500 truncate">Total Products</p>
+                                    <p class="mt-1 text-3xl font-semibold text-gray-900"><span id="totalProducts">0</span></p>
+                                </div>
+                                <div class="p-3 bg-blue-100 rounded-full">
+                                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-6 bg-white rounded-lg shadow">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-500 truncate">Total Invoices</p>
+                                    <p class="mt-1 text-3xl font-semibold text-gray-900"><span id="totalInvoices">0</span></p>
+                                </div>
+                                <div class="p-3 bg-purple-100 rounded-full">
+                                    <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                        <div class="p-6 bg-white rounded-lg shadow">
+                            <h3 class="text-lg font-medium text-gray-900">Recent Invoices</h3>
+                            <div class="mt-4 overflow-auto border border-gray-200 rounded-lg max-h-96">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="sticky top-0 bg-gray-50">
+                                        <tr>
+                                            <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Invoice No</th>
+                                            <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Date</th>
+                                            <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="recentInvoices" class="bg-white divide-y divide-gray-200">
+                                        <!-- Recent invoices will be populated here -->
+                                        <tr><td colspan="3" class="px-6 py-4 text-sm text-center text-gray-500">Loading...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="p-6 bg-white rounded-lg shadow">
+                            <h3 class="text-lg font-medium text-gray-900">Top Selling Products</h3>
+                            <div class="mt-4 overflow-auto border border-gray-200 rounded-lg max-h-96">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="sticky top-0 bg-gray-50">
+                                        <tr>
+                                            <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Product</th>
+                                            <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Quantity Sold</th>
+                                            <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Revenue</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="topProducts" class="bg-white divide-y divide-gray-200">
+                                        <!-- Top products will be populated here -->
+                                         <tr><td colspan="3" class="px-6 py-4 text-sm text-center text-gray-500">Loading...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Billing Content -->
+                <div id="billingContent" class="hidden">
+                    <div class="p-6 bg-white rounded-lg shadow">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                            <div>
+                                <h2 class="text-xl font-semibold text-gray-800">Create New Invoice</h2>
+                                <p class="mt-1 text-sm text-gray-500">Fill in the details below to create a new invoice</p>
+                            </div>
+                            <div class="mt-4 md:mt-0">
+                                <button id="printInvoiceBtn" disabled class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                                    Print Invoice
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="mt-6">
+                            <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+                                <div>
+                                    <label for="customerName" class="block text-sm font-medium text-gray-700">Customer Name</label>
+                                    <input type="text" id="customerName" class="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                </div>
+                                <div>
+                                    <label for="invoiceDate" class="block text-sm font-medium text-gray-700">Invoice Date</label>
+                                    <input type="date" id="invoiceDate" class="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                </div>
+                                <div>
+                                    <label for="paymentMode" class="block text-sm font-medium text-gray-700">Payment Mode</label>
+                                    <select id="paymentMode" class="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                        <option value="CASH">Cash</option>
+                                        <option value="CARD">Card</option>
+                                        <option value="UPI">UPI</option>
+                                        <option value="BANK TRANSFER">Bank Transfer</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-8">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-lg font-medium text-gray-900">Items</h3>
+                                <button id="addItemBtn" class="px-3 py-1 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                    Add Item
+                                </button>
+                            </div>
+
+                            <div class="mt-4 overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th scope="col" class="px-3 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">S.No</th>
+                                            <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Product</th>
+                                            <th scope="col" class="px-3 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">HSN</th>
+                                            <th scope="col" class="px-3 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">GST %</th>
+                                            <th scope="col" class="px-3 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Qty</th>
+                                            <th scope="col" class="px-3 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Rate</th>
+                                            <th scope="col" class="px-3 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Disc %</th>
+                                            <th scope="col" class="px-3 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Amount</th>
+                                            <th scope="col" class="px-3 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="invoiceItems" class="bg-white divide-y divide-gray-200">
+                                        <!-- Invoice items will be added here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="mt-8">
+                            <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+                                <div class="md:col-span-2"></div> <!-- Spacer -->
+                                <div class="p-4 border border-gray-200 rounded-lg">
+                                     <div class="flex justify-between mb-2">
+                                        <span class="text-sm font-medium text-gray-700">Sub Total:</span>
+                                        <span class="text-sm font-medium text-gray-900">₹<span id="subTotalAmount">0.00</span></span>
+                                    </div>
+                                    <div class="flex justify-between mb-2">
+                                        <label for="transportCharges" class="text-sm font-medium text-gray-700">Transport Charges:</label>
+                                        <input type="number" id="transportCharges" value="0" step="0.01" min="0" onchange="calculateInvoiceTotal()" class="w-24 px-2 py-1 text-sm text-right border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                    </div>
+                                     <div class="flex justify-between mb-2">
+                                        <span class="text-sm font-medium text-gray-700">Total Taxable:</span>
+                                        <span class="text-sm font-medium text-gray-900">₹<span id="taxableAmount">0.00</span></span>
+                                    </div>
+                                    <div class="flex justify-between mb-2">
+                                        <span class="text-sm font-medium text-gray-700">CGST Amount:</span>
+                                        <span class="text-sm font-medium text-gray-900">₹<span id="cgstAmount">0.00</span></span>
+                                    </div>
+                                    <div class="flex justify-between mb-2">
+                                        <span class="text-sm font-medium text-gray-700">SGST Amount:</span>
+                                        <span class="text-sm font-medium text-gray-900">₹<span id="sgstAmount">0.00</span></span>
+                                    </div>
+                                    <div class="flex justify-between mb-2">
+                                        <label for="roundOff" class="text-sm font-medium text-gray-700">Round Off:</label>
+                                        <input type="number" id="roundOff" value="0" step="0.01" onchange="calculateInvoiceTotal()" class="w-24 px-2 py-1 text-sm text-right border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                    </div>
+                                    <hr class="my-2">
+                                    <div class="flex justify-between font-bold">
+                                        <span class="text-lg text-gray-900">Total:</span>
+                                        <span class="text-lg text-gray-900">₹<span id="invoiceTotal">0.00</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end mt-6">
+                            <button id="saveInvoiceBtn" class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                                Save Invoice
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Products Content -->
+                <div id="productsContent" class="hidden">
+                     <div class="flex flex-col items-start justify-between gap-4 mb-6 md:flex-row md:items-center">
+                        <div>
+                            <h2 class="text-xl font-semibold text-gray-800">Product Management</h2>
+                            <p class="mt-1 text-sm text-gray-500">Manage your product inventory here</p>
+                        </div>
+                         <div class="flex items-center space-x-2">
+                             <input type="text" id="productSearch" placeholder="Search products..." class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm md:w-64 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            <button id="addProductBtn" class="flex-shrink-0 px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md whitespace-nowrap hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                Add Product
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mt-6">
+                        <div class="overflow-x-auto border border-gray-200 rounded-lg">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">ID</th>
+                                        <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Product Name</th>
+                                        <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">HSN Code</th>
+                                        <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">GST %</th>
+                                        <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Price</th>
+                                        <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="productsTable" class="bg-white divide-y divide-gray-200">
+                                    <!-- Products will be populated here -->
+                                    <tr><td colspan="6" class="px-6 py-4 text-sm text-center text-gray-500">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                         <div id="productPagination" class="flex justify-between items-center mt-4">
+                            <!-- Pagination controls will be added here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Invoices Content -->
+                <div id="invoicesContent" class="hidden">
+                    <div class="flex flex-col items-start justify-between gap-4 mb-6 md:flex-row md:items-center">
+                        <div>
+                            <h2 class="text-xl font-semibold text-gray-800">Invoice History</h2>
+                            <p class="mt-1 text-sm text-gray-500">View and manage all your invoices</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <input type="text" id="invoiceSearch" placeholder="Search Invoice No / Customer..." class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm md:w-64 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            <button id="filterInvoicesBtn" class="flex-shrink-0 px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                Search
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mt-6">
+                        <div class="overflow-x-auto border border-gray-200 rounded-lg">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Invoice No</th>
+                                        <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Date</th>
+                                        <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Customer</th>
+                                        <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Amount</th>
+                                        <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Payment Mode</th>
+                                        <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="invoicesTable" class="bg-white divide-y divide-gray-200">
+                                    <!-- Invoices will be populated here -->
+                                     <tr><td colspan="6" class="px-6 py-4 text-sm text-center text-gray-500">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                         <div id="invoicePagination" class="flex justify-between items-center mt-4">
+                            <!-- Pagination controls will be added here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reports Content -->
+                <div id="reportsContent" class="hidden">
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-800">Reports</h2>
+                        <p class="mt-1 text-sm text-gray-500">Generate and view various reports</p>
+                    </div>
+
+                    <div class="mt-6">
+                        <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                            <div class="p-6 bg-white rounded-lg shadow">
+                                <h3 class="text-lg font-medium text-gray-900">Sales Report</h3>
+                                <p class="mt-2 text-sm text-gray-500">Generate sales report by date range</p>
+                                <div class="mt-4">
+                                    <label for="salesReportStartDate" class="block text-sm font-medium text-gray-700">Start Date</label>
+                                    <input type="date" id="salesReportStartDate" class="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                </div>
+                                <div class="mt-4">
+                                    <label for="salesReportEndDate" class="block text-sm font-medium text-gray-700">End Date</label>
+                                    <input type="date" id="salesReportEndDate" class="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                </div>
+                                <button id="generateSalesReportBtn" class="w-full px-4 py-2 mt-4 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                    Generate Report
+                                </button>
+                            </div>
+
+                            <div class="p-6 bg-white rounded-lg shadow">
+                                <h3 class="text-lg font-medium text-gray-900">Product Sales Report</h3>
+                                <p class="mt-2 text-sm text-gray-500">View sales by product</p>
+                                <div class="mt-4">
+                                    <label for="productReportProduct" class="block text-sm font-medium text-gray-700">Product</label>
+                                    <select id="productReportProduct" class="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                        <option value="">All Products</option>
+                                        <!-- Products will be populated here -->
+                                    </select>
+                                </div>
+                                <div class="mt-4">
+                                    <label for="productReportStartDate" class="block text-sm font-medium text-gray-700">Start Date</label>
+                                    <input type="date" id="productReportStartDate" class="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                </div>
+                                <div class="mt-4">
+                                    <label for="productReportEndDate" class="block text-sm font-medium text-gray-700">End Date</label>
+                                    <input type="date" id="productReportEndDate" class="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                </div>
+                                <button id="generateProductReportBtn" class="w-full px-4 py-2 mt-4 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                    Generate Report
+                                </button>
+                            </div>
+
+                            <div class="p-6 bg-white rounded-lg shadow">
+                                <h3 class="text-lg font-medium text-gray-900">GST Report</h3>
+                                <p class="mt-2 text-sm text-gray-500">Generate GST report by date range</p>
+                                <div class="mt-4">
+                                    <label for="gstReportStartDate" class="block text-sm font-medium text-gray-700">Start Date</label>
+                                    <input type="date" id="gstReportStartDate" class="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                </div>
+                                <div class="mt-4">
+                                    <label for="gstReportEndDate" class="block text-sm font-medium text-gray-700">End Date</label>
+                                    <input type="date" id="gstReportEndDate" class="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                </div>
+                                <button id="generateGstReportBtn" class="w-full px-4 py-2 mt-4 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                    Generate Report
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="mt-6">
+                            <div id="reportResults" class="hidden p-6 bg-white rounded-lg shadow">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 id="reportTitle" class="text-lg font-medium text-gray-900"></h3>
+                                    <button id="exportReportBtn" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                        Export to PDF
+                                    </button>
+                                </div>
+                                <div id="reportContent" class="overflow-x-auto">
+                                    <!-- Report content will be displayed here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Invoice Print Template (Hidden) -->
+    <div id="invoicePrintTemplate" class="hidden">
+        <div class="p-6 bg-white text-xs">
+            <div class="text-center">
+                <h1 class="text-lg font-bold">SRI KRISHNA COTTAGE INDUSTRIES</h1>
+                <p class="mt-1">Bellathi Rd, Karamadai, Tamil Nadu 641104</p>
+                <p>karamadaikrishnas98@gmail.com | PH - +91 9384430633</p>
+                <p>GSTIN/UIN : 33AXFPK5612A1Z4 | State Name: Tamilnadu | Code : 33</p>
+            </div>
+
+            <div class="mt-4 border-t border-b border-gray-300 py-2">
+                <div class="flex justify-between">
+                    <div class="w-1/2 pr-2">
+                        <p><strong>To:</strong> <span id="printCustomerName"></span></p>
+                        <p><strong>GSTIN/UIN:</strong> <span id="printCustomerGst"></span></p>
+                        <!-- Add Address if needed -->
+                    </div>
+                    <div class="w-1/2 pl-2 border-l border-gray-300">
+                        <p><strong>Invoice No:</strong> <span id="printInvoiceNo"></span></p>
+                        <p><strong>Date:</strong> <span id="printInvoiceDate"></span></p>
+                        <p><strong>Mode of Payment:</strong> <span id="printPaymentMode"></span></p>
+                        <p><strong>Vehicle No:</strong> <span id="printVehicleNo"></span></p> <!-- Example: Add input field if needed -->
+                        <p><strong>Delivery Date:</strong> <span id="printDeliveryDate"></span></p> <!-- Example: Add input field if needed -->
+                        <p><strong>Destination:</strong> <span id="printDestination"></span></p> <!-- Example: Add input field if needed -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <table class="w-full border-collapse border border-gray-400">
+                    <thead>
+                        <tr class="bg-gray-100">
+                            <th class="p-1 border border-gray-400">S.no</th>
+                            <th class="p-1 border border-gray-400">Description of Goods</th>
+                            <th class="p-1 border border-gray-400">HSN</th>
+                            <th class="p-1 border border-gray-400">GST %</th>
+                            <th class="p-1 border border-gray-400">Qty</th>
+                            <th class="p-1 border border-gray-400">Rate</th>
+                            <th class="p-1 border border-gray-400">Disc %</th>
+                            <!-- <th class="p-1 border border-gray-400">Price</th> -->
+                            <th class="p-1 border border-gray-400">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody id="printInvoiceItems">
+                        <!-- Invoice items will be populated here -->
+                    </tbody>
+                     <tfoot>
+                        <tr>
+                             <td colspan="7" class="p-1 font-semibold text-right border border-gray-400">Sub Total</td>
+                             <td class="p-1 font-semibold text-right border border-gray-400">₹<span id="printSubTotal">0.00</span></td>
+                        </tr>
+                        <tr>
+                             <td colspan="7" class="p-1 text-right border border-gray-400">Transport Chrgs</td>
+                             <td class="p-1 text-right border border-gray-400">₹<span id="printTransportCharges">0.00</span></td>
+                        </tr>
+                         <tr>
+                             <td colspan="7" class="p-1 font-semibold text-right border border-gray-400">Total Taxable Amount</td>
+                             <td class="p-1 font-semibold text-right border border-gray-400">₹<span id="printTaxableAmount">0.00</span></td>
+                        </tr>
+                         <tr>
+                             <td colspan="7" class="p-1 text-right border border-gray-400">Output CGST Amt</td>
+                             <td class="p-1 text-right border border-gray-400">₹<span id="printCgstAmount">0.00</span></td>
+                        </tr>
+                        <tr>
+                             <td colspan="7" class="p-1 text-right border border-gray-400">Output SGST Amt</td>
+                             <td class="p-1 text-right border border-gray-400">₹<span id="printSgstAmount">0.00</span></td>
+                        </tr>
+                        <tr>
+                             <td colspan="7" class="p-1 text-right border border-gray-400">Round off</td>
+                             <td class="p-1 text-right border border-gray-400">₹<span id="printRoundOff">0.00</span></td>
+                        </tr>
+                        <tr class="bg-gray-100">
+                             <td colspan="7" class="p-1 text-lg font-bold text-right border border-gray-400">TOTAL</td>
+                             <td class="p-1 text-lg font-bold text-right border border-gray-400">₹<span id="printInvoiceTotal">0.00</span></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <div class="mt-4">
+                <p><strong>Amount Chargable (in words):</strong> <span id="printAmountInWords"></span> RUPEES ONLY</p>
+            </div>
+
+             <div class="mt-4">
+                <p><strong>Tax Amount (in words):</strong> <span id="printTaxInWords"></span> RUPEES ONLY</p>
+                <table class="w-full mt-1 border-collapse border border-gray-400">
+                    <thead>
+                        <tr class="bg-gray-100">
+                            <th class="p-1 font-semibold border border-gray-400">HSN</th>
+                            <th class="p-1 font-semibold border border-gray-400">Taxable Value</th>
+                            <th class="p-1 font-semibold border border-gray-400">CGST Rate</th>
+                            <th class="p-1 font-semibold border border-gray-400">CGST Amt</th>
+                            <th class="p-1 font-semibold border border-gray-400">SGST Rate</th>
+                            <th class="p-1 font-semibold border border-gray-400">SGST Amt</th>
+                            <th class="p-1 font-semibold border border-gray-400">Total Tax</th>
+                        </tr>
+                    </thead>
+                    <tbody id="printTaxSummary">
+                        <!-- Tax summary rows go here -->
+                    </tbody>
+                     <tfoot>
+                         <tr class="bg-gray-100">
+                             <td class="p-1 font-bold text-right border border-gray-400">Total</td>
+                             <td class="p-1 font-bold text-right border border-gray-400" id="printTotalTaxableVal">0.00</td>
+                             <td class="p-1 border border-gray-400"></td>
+                             <td class="p-1 font-bold text-right border border-gray-400" id="printTotalCGSTAmt">0.00</td>
+                              <td class="p-1 border border-gray-400"></td>
+                             <td class="p-1 font-bold text-right border border-gray-400" id="printTotalSGSTAmt">0.00</td>
+                             <td class="p-1 font-bold text-right border border-gray-400" id="printTotalTaxAmt">0.00</td>
+                         </tr>
+                     </tfoot>
+                </table>
+            </div>
+
+            <div class="mt-6">
+                <div class="flex justify-between">
+                    <div class="w-1/2 pr-4">
+                        <p><strong>Company's Bank Details</strong></p>
+                        <p>Bank Name : INDIAN BANK</p>
+                        <p>Account No : 911638608</p>
+                        <p>Branch & IFSC code : KARAMADAI & IDIB000K018</p>
+                    </div>
+                    <div class="w-1/2 pl-4 text-right">
+                        <p><strong>For SRI KRISHNA COTTAGE INDUSTRIES</strong></p>
+                        <br><br><br>
+                        <p>Authorised Signatory</p>
+                    </div>
+                </div>
+                <div class="mt-4 text-center">
+                    <p><em>This is a Computer Generated Invoice</em></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Product Modal -->
+    <div id="productModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+                <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+            </div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <form id="productForm">
+                    <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                        <h3 class="text-lg font-medium leading-6 text-gray-900" id="modalTitle">Add New Product</h3>
+                        <input type="hidden" id="productId">
+                        <div class="mt-4 space-y-4">
+                            <div>
+                                <label for="productName" class="block text-sm font-medium text-gray-700">Product Name</label>
+                                <input type="text" id="productName" required class="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="productHsn" class="block text-sm font-medium text-gray-700">HSN Code</label>
+                                <input type="text" id="productHsn" class="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="productGst" class="block text-sm font-medium text-gray-700">GST %</label>
+                                <select id="productGst" required class="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                    <option value="0">0%</option>
+                                    <option value="5">5%</option>
+                                    <option value="12">12%</option>
+                                    <option value="18">18%</option>
+                                    <option value="28">28%</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="productPrice" class="block text-sm font-medium text-gray-700">Price (Excluding GST)</label>
+                                <input type="number" id="productPrice" required step="0.01" min="0" class="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                        <button type="submit" id="saveProductBtn" class="inline-flex justify-center w-full px-4 py-2 text-base font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm">
+                            Save
+                        </button>
+                        <button type="button" id="cancelProductBtn" class="inline-flex justify-center w-full px-4 py-2 mt-3 text-base font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Invoice Modal -->
+    <div id="viewInvoiceModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+                <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+            </div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+                 <div class="sticky top-0 z-10 flex items-center justify-between px-4 pt-5 pb-3 bg-white border-b sm:px-6">
+                     <h3 class="text-lg font-medium leading-6 text-gray-900" id="viewInvoiceTitle">Invoice Details</h3>
+                    <div class="flex items-center space-x-3">
+                        <button id="printViewInvoiceBtn" data-invoice-id="" class="px-3 py-1 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Print
+                        </button>
+                         <button type="button" id="closeViewInvoiceBtn" class="text-gray-400 bg-transparent rounded-md hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <span class="sr-only">Close</span>
+                            <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                 <div class="px-4 pb-4 overflow-y-auto sm:p-6 sm:pb-4 max-h-[80vh]">
+                    <div id="viewInvoiceContent">
+                        <!-- Cloned Invoice content will be populated here -->
+                    </div>
+                </div>
+                <!-- Remove bottom close button as it's now in the header -->
+                <!-- <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" id="closeViewInvoiceBtn" class="inline-flex justify-center w-full px-4 py-2 text-base font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm">
+                        Close
+                    </button>
+                </div> -->
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // Initialize the database
+        let db;
+        let currentEditingProductId = null; // For editing products
+        let currentViewingInvoiceId = null; // For viewing/printing existing invoices
+        const { jsPDF } = window.jspdf;
+        const ITEMS_PER_PAGE = 10; // For pagination
+
+        // --- IndexedDB Setup ---
+        document.addEventListener('DOMContentLoaded', function() {
+            const request = indexedDB.open('SKCIBillingDB', 2); // Incremented version for schema changes
+
+            request.onerror = function(event) {
+                console.error('Database error:', event.target.error);
+                alert('Database could not be opened. Please ensure IndexedDB is supported and enabled.');
+            };
+
+            request.onupgradeneeded = function(event) {
+                db = event.target.result;
+                console.log('Upgrading database from version', event.oldVersion, 'to', event.newVersion);
+
+                // Create/update products store
+                if (!db.objectStoreNames.contains('products')) {
+                    const productsStore = db.createObjectStore('products', { keyPath: 'id', autoIncrement: true });
+                    productsStore.createIndex('name', 'name', { unique: false });
+                    productsStore.createIndex('nameLower', 'nameLower', { unique: false }); // For case-insensitive search
+                    console.log('Created products object store');
+                } else {
+                     const productsStore = event.target.transaction.objectStore('products');
+                     if (!productsStore.indexNames.contains('nameLower')) {
+                        productsStore.createIndex('nameLower', 'nameLower', { unique: false });
+                        console.log('Added nameLower index to products');
+                     }
+                }
+
+
+                // Create/update invoices store
+                if (!db.objectStoreNames.contains('invoices')) {
+                    const invoicesStore = db.createObjectStore('invoices', { keyPath: 'id', autoIncrement: true });
+                    invoicesStore.createIndex('invoiceNumber', 'invoiceNumber', { unique: true });
+                    invoicesStore.createIndex('date', 'date', { unique: false });
+                    invoicesStore.createIndex('customerNameLower', 'customerNameLower', { unique: false }); // For search
+                    console.log('Created invoices object store');
+                } else {
+                     const invoicesStore = event.target.transaction.objectStore('invoices');
+                     if (!invoicesStore.indexNames.contains('customerNameLower')) {
+                        invoicesStore.createIndex('customerNameLower', 'customerNameLower', { unique: false });
+                        console.log('Added customerNameLower index to invoices');
+                     }
+                     // Add more indexes if needed in future versions
+                }
+
+                // Create/update invoice items store
+                if (!db.objectStoreNames.contains('invoiceItems')) {
+                    const invoiceItemsStore = db.createObjectStore('invoiceItems', { keyPath: 'id', autoIncrement: true });
+                    invoiceItemsStore.createIndex('invoiceId', 'invoiceId', { unique: false });
+                    invoiceItemsStore.createIndex('productId', 'productId', { unique: false });
+                     invoiceItemsStore.createIndex('productName', 'productName', { unique: false }); // For product report
+                    console.log('Created invoiceItems object store');
+                } else {
+                    const invoiceItemsStore = event.target.transaction.objectStore('invoiceItems');
+                     if (!invoiceItemsStore.indexNames.contains('productName')) {
+                        invoiceItemsStore.createIndex('productName', 'productName', { unique: false });
+                        console.log('Added productName index to invoiceItems');
+                     }
+                }
+
+                // Create settings store (for next invoice number, etc.)
+                 if (!db.objectStoreNames.contains('settings')) {
+                    const settingsStore = db.createObjectStore('settings', { keyPath: 'key' });
+                    // Initialize next invoice number if it's a fresh DB
+                    settingsStore.put({ key: 'nextInvoiceNumber', value: 1 });
+                    console.log('Created settings object store and initialized nextInvoiceNumber');
+                }
+
+                 // Add sample products only if creating products store for the first time
+                 if (event.oldVersion < 1) { // Check if this is the very first version
+                     const transaction = event.target.transaction;
+                     const productStore = transaction.objectStore('products');
+                     const sampleProducts = [
+                         { name: 'Kalla Mittai 50g', nameLower: 'kalla mittai 50g', hsn: '17049090', gst: 5, price: 10.00 }, // Example Price Excl GST
+                         { name: 'Kalla Mittai 100g', nameLower: 'kalla mittai 100g', hsn: '17049090', gst: 5, price: 20.00 },
+                         { name: 'Pori Urundai 10Rs', nameLower: 'pori urundai 10rs', hsn: '19041090', gst: 5, price: 8.00 },
+                         { name: 'Coconut Mittai 5Rs', nameLower: 'coconut mittai 5rs', hsn: '17049020', gst: 5, price: 4.00 },
+                     ];
+
+                     sampleProducts.forEach(product => {
+                         productStore.add(product);
+                     });
+                     console.log('Added sample products');
+                 }
+            };
+
+            request.onsuccess = function(event) {
+                db = event.target.result;
+                console.log('Database initialized successfully (version ' + db.version + ')');
+
+                // Set current date as default for invoice date and report dates
+                const today = new Date().toISOString().split('T')[0];
+                const dateFields = ['invoiceDate', 'salesReportStartDate', 'salesReportEndDate', 'productReportStartDate', 'productReportEndDate', 'gstReportStartDate', 'gstReportEndDate'];
+                dateFields.forEach(id => {
+                    const el = document.getElementById(id);
+                    if(el && !el.value) el.value = today;
+                });
+
+                // Initial load for the default view (Dashboard)
+                loadDashboardData();
+                populateProductDropdowns(); // Populate product dropdown in reports
+
+                // Attach event listeners after DB is ready
+                attachEventListeners();
+            };
+        });
+
+        // --- Event Listeners ---
+        function attachEventListeners() {
+             // Login form submission
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+
+            // Logout button
+            document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+
+            // Navigation buttons
+            document.getElementById('dashboardNav').addEventListener('click', (e) => { e.preventDefault(); navigateTo('dashboard'); });
+            document.getElementById('billingNav').addEventListener('click', (e) => { e.preventDefault(); navigateTo('billing'); });
+            document.getElementById('productsNav').addEventListener('click', (e) => { e.preventDefault(); navigateTo('products'); });
+            document.getElementById('invoicesNav').addEventListener('click', (e) => { e.preventDefault(); navigateTo('invoices'); });
+            document.getElementById('reportsNav').addEventListener('click', (e) => { e.preventDefault(); navigateTo('reports'); });
+
+            // Billing Page
+            document.getElementById('addItemBtn').addEventListener('click', addInvoiceItem);
+            document.getElementById('saveInvoiceBtn').addEventListener('click', saveInvoice);
+            document.getElementById('printInvoiceBtn').addEventListener('click', () => printInvoice(currentViewingInvoiceId)); // Use currentViewingInvoiceId if set
+            document.getElementById('invoiceItems').addEventListener('change', handleItemChange); // Delegate event listener for item changes
+            document.getElementById('invoiceItems').addEventListener('click', handleItemClick); // Delegate event listener for item clicks (delete)
+            document.getElementById('transportCharges').addEventListener('change', calculateInvoiceTotal);
+            document.getElementById('roundOff').addEventListener('change', calculateInvoiceTotal);
+
+
+            // Products Page
+            document.getElementById('addProductBtn').addEventListener('click', () => showProductModal());
+            document.getElementById('productForm').addEventListener('submit', saveProduct);
+            document.getElementById('cancelProductBtn').addEventListener('click', hideProductModal);
+            document.getElementById('productsTable').addEventListener('click', handleProductAction); // Delegate clicks for edit/delete
+            document.getElementById('productSearch').addEventListener('input', () => loadProducts(1)); // Trigger search on input change
+
+            // Invoices Page
+            document.getElementById('filterInvoicesBtn').addEventListener('click', () => loadInvoices(1)); // Trigger search/filter
+            document.getElementById('invoiceSearch').addEventListener('keypress', (e) => { if (e.key === 'Enter') loadInvoices(1); }); // Allow Enter key search
+            document.getElementById('invoicesTable').addEventListener('click', handleInvoiceAction); // Delegate clicks for view/delete
+
+            // Reports Page
+            document.getElementById('generateSalesReportBtn').addEventListener('click', generateSalesReport);
+            document.getElementById('generateProductReportBtn').addEventListener('click', generateProductReport);
+            document.getElementById('generateGstReportBtn').addEventListener('click', generateGstReport);
+            document.getElementById('exportReportBtn').addEventListener('click', exportReportToPDF);
+
+            // Modals
+            document.getElementById('closeViewInvoiceBtn').addEventListener('click', () => document.getElementById('viewInvoiceModal').classList.add('hidden'));
+            document.getElementById('printViewInvoiceBtn').addEventListener('click', () => {
+                 const invoiceId = parseInt(document.getElementById('printViewInvoiceBtn').getAttribute('data-invoice-id'));
+                 if (invoiceId) {
+                     printInvoice(invoiceId);
+                 } else {
+                    console.error("No invoice ID found for printing from view modal");
+                 }
+            });
+        }
+
+        // --- Navigation ---
+         function navigateTo(section) {
+            setActiveNav(section + 'Nav');
+            showContent(section + 'Content');
+
+            // Load data specific to the section
+            switch(section) {
+                case 'dashboard':
+                    loadDashboardData();
+                    break;
+                case 'billing':
+                    resetInvoiceForm();
+                    break;
+                case 'products':
+                    loadProducts();
+                    break;
+                case 'invoices':
+                    loadInvoices();
+                    break;
+                case 'reports':
+                    populateProductDropdowns(); // Ensure product dropdown is up-to-date
+                    // Reset report results area
+                    document.getElementById('reportResults').classList.add('hidden');
+                    document.getElementById('reportContent').innerHTML = '';
+                    document.getElementById('reportTitle').textContent = '';
+                    break;
+            }
+        }
+
+        function setActiveNav(navId) {
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active-nav'));
+            const activeNavItem = document.getElementById(navId);
+             if(activeNavItem) {
+                 activeNavItem.classList.add('active-nav');
+                 // Update page title based on the text content of the nav item
+                 const pageTitle = document.getElementById('pageTitle');
+                 // Extract text, ignoring the SVG icon if present
+                 pageTitle.textContent = activeNavItem.textContent.trim() || 'Billing';
+             } else {
+                 console.warn(`Navigation item with ID ${navId} not found.`);
+                 document.getElementById('pageTitle').textContent = 'Billing'; // Default title
+             }
+        }
+
+        function showContent(contentId) {
+            document.querySelectorAll('[id$="Content"]').forEach(div => div.classList.add('hidden'));
+             const contentDiv = document.getElementById(contentId);
+             if (contentDiv) {
+                 contentDiv.classList.remove('hidden');
+             } else {
+                 console.warn(`Content div with ID ${contentId} not found.`);
+                 document.getElementById('dashboardContent').classList.remove('hidden'); // Show dashboard as default
+             }
+        }
+
+        // --- Login / Logout ---
+        function handleLogin(e) {
+            e.preventDefault();
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value; // Don't trim password
+
+            // Simple hardcoded credentials
+            if ((username === 'Krishna' && password === 'Krishna@123') ||
+                (username === 'Raja' && password === 'Raja@123')) {
+
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('appScreen').classList.remove('hidden');
+                document.getElementById('currentUser').textContent = username;
+
+                // Reset form fields
+                usernameInput.value = '';
+                passwordInput.value = '';
+
+                // Role-based access control (Example)
+                const isAdmin = (username === 'Krishna');
+                document.getElementById('productsNav').style.display = isAdmin ? 'flex' : 'none';
+                document.getElementById('reportsNav').style.display = isAdmin ? 'flex' : 'none';
+                // Hide "Add Product" button for non-admin on Products page (if they somehow navigate there)
+                 const addProductBtn = document.getElementById('addProductBtn');
+                 if (addProductBtn) addProductBtn.style.display = isAdmin ? 'inline-flex' : 'none';
+                 // You might need more granular control (e.g., disable delete buttons for non-admins)
+
+                // Navigate to dashboard after login
+                navigateTo('dashboard');
+
+            } else {
+                alert('Invalid username or password. Please try again.');
+                passwordInput.value = ''; // Clear password field on failure
+                usernameInput.focus();
+            }
+        }
+
+        function handleLogout() {
+            if (confirm('Are you sure you want to logout?')) {
+                document.getElementById('loginScreen').classList.remove('hidden');
+                document.getElementById('appScreen').classList.add('hidden');
+                document.getElementById('loginForm').reset(); // Clear login form
+                document.getElementById('currentUser').textContent = '';
+                // Optionally clear other sensitive data if needed
+            }
+        }
+
+
+        // --- Dashboard ---
+        async function loadDashboardData() {
+            console.log("Loading dashboard data...");
+             try {
+                 const today = new Date().toISOString().split('T')[0];
+                 const currentMonthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
+                 const nextMonthStart = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1).toISOString().split('T')[0];
+
+                 const [todaySales, monthSales, productCount, invoiceCount, recentInvoicesData, topProductsData] = await Promise.all([
+                     getSalesTotal(IDBKeyRange.only(today)),
+                     getSalesTotal(IDBKeyRange.bound(currentMonthStart, nextMonthStart, false, true)), // >= monthStart, < nextMonthStart
+                     getCount('products'),
+                     getCount('invoices'),
+                     getRecentInvoices(5),
+                     getTopSellingProducts(5) // Get top 5 products
+                 ]);
+
+                 document.getElementById('todaySales').textContent = todaySales.toFixed(2);
+                 document.getElementById('monthSales').textContent = monthSales.toFixed(2);
+                 document.getElementById('totalProducts').textContent = productCount;
+                 document.getElementById('totalInvoices').textContent = invoiceCount;
+                 displayRecentInvoices(recentInvoicesData);
+                 displayTopProducts(topProductsData);
+
+             } catch (error) {
+                 console.error("Error loading dashboard data:", error);
+                 // Display error messages or fallback values
+                 document.getElementById('todaySales').textContent = 'Error';
+                 document.getElementById('monthSales').textContent = 'Error';
+                 document.getElementById('totalProducts').textContent = 'Error';
+                 document.getElementById('totalInvoices').textContent = 'Error';
+                 document.getElementById('recentInvoices').innerHTML = '<tr><td colspan="3" class="text-center text-red-500">Error loading recent invoices</td></tr>';
+                 document.getElementById('topProducts').innerHTML = '<tr><td colspan="3" class="text-center text-red-500">Error loading top products</td></tr>';
+             }
+        }
+
+        function getCount(storeName) {
+            return new Promise((resolve, reject) => {
+                if (!db) return reject("Database not initialized");
+                const transaction = db.transaction([storeName], 'readonly');
+                const store = transaction.objectStore(storeName);
+                const request = store.count();
+                request.onsuccess = (event) => resolve(event.target.result);
+                request.onerror = (event) => reject(event.target.error);
+            });
+        }
+
+        function getSalesTotal(range) {
+            return new Promise((resolve, reject) => {
+                if (!db) return reject("Database not initialized");
+                const transaction = db.transaction(['invoices'], 'readonly');
+                const store = transaction.objectStore('invoices');
+                const index = store.index('date');
+                const request = index.openCursor(range);
+                let total = 0;
+
+                request.onsuccess = function(event) {
+                    const cursor = event.target.result;
+                    if (cursor) {
+                        total += cursor.value.totalAmount || 0; // Ensure totalAmount exists and is a number
+                        cursor.continue();
+                    } else {
+                        resolve(total);
+                    }
+                };
+                 request.onerror = (event) => reject(event.target.error);
+            });
+        }
+
+        function getRecentInvoices(limit = 5) {
+            return new Promise((resolve, reject) => {
+                if (!db) return reject("Database not initialized");
+                const transaction = db.transaction(['invoices'], 'readonly');
+                const store = transaction.objectStore('invoices');
+                const request = store.openCursor(null, 'prev'); // Sort by primary key (ID) descending for recent
+                const recentInvoices = [];
+
+                request.onsuccess = function(event) {
+                    const cursor = event.target.result;
+                    if (cursor && recentInvoices.length < limit) {
+                        recentInvoices.push(cursor.value);
+                        cursor.continue();
+                    } else {
+                        resolve(recentInvoices);
+                    }
+                };
+                 request.onerror = (event) => reject(event.target.error);
+            });
+        }
+
+        function displayRecentInvoices(invoices) {
+            const tbody = document.getElementById('recentInvoices');
+            tbody.innerHTML = ''; // Clear previous entries
+
+            if (!invoices || invoices.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" class="px-6 py-4 text-sm text-center text-gray-500">No recent invoices found.</td></tr>';
+                return;
+            }
+
+            invoices.forEach(invoice => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${invoice.invoiceNumber}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${invoice.date}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₹${(invoice.totalAmount || 0).toFixed(2)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+         async function getTopSellingProducts(limit = 5) {
+            return new Promise(async (resolve, reject) => {
+                 if (!db) return reject("Database not initialized");
+                 const transaction = db.transaction(['invoiceItems', 'products'], 'readonly');
+                 const itemsStore = transaction.objectStore('invoiceItems');
+                 const productsStore = transaction.objectStore('products');
+                 const productSales = {}; // { productId: { name: '...', quantity: 0, revenue: 0 } }
+
+                 const itemCursor = itemsStore.openCursor();
+
+                 itemCursor.onsuccess = async (event) => {
+                     const cursor = event.target.result;
+                     if (cursor) {
+                         const item = cursor.value;
+                         const productId = item.productId;
+
+                         if (!productSales[productId]) {
+                             // Fetch product details if not already cached (less efficient, better to pre-fetch or store name in item)
+                              const productReq = productsStore.get(productId);
+                              productReq.onsuccess = (e) => {
+                                  const product = e.target.result;
+                                  productSales[productId] = {
+                                      name: product ? product.name : `Product ID ${productId}`, // Fallback name
+                                      quantity: 0,
+                                      revenue: 0
+                                  };
+                                  productSales[productId].quantity += item.quantity || 0;
+                                  productSales[productId].revenue += item.amount || 0; // Amount should be item total amount
+                                  cursor.continue(); // Continue after fetching product details
+                              };
+                              productReq.onerror = (e) => {
+                                  console.error(`Error fetching product ${productId}:`, e.target.error);
+                                   // Still add with fallback name if product fetch fails
+                                  productSales[productId] = { name: `Product ID ${productId}`, quantity: 0, revenue: 0 };
+                                  productSales[productId].quantity += item.quantity || 0;
+                                  productSales[productId].revenue += item.amount || 0;
+                                  cursor.continue();
+                              };
+                         } else {
+                            productSales[productId].quantity += item.quantity || 0;
+                            productSales[productId].revenue += item.amount || 0;
+                             cursor.continue();
+                         }
+
+                     } else {
+                         // All items processed, sort and limit
+                         const sortedProducts = Object.values(productSales)
+                             .sort((a, b) => b.quantity - a.quantity); // Sort by quantity descending
+
+                         resolve(sortedProducts.slice(0, limit));
+                     }
+                 };
+                 itemCursor.onerror = (event) => reject(event.target.error);
+             });
+        }
+
+        function displayTopProducts(products) {
+            const tbody = document.getElementById('topProducts');
+            tbody.innerHTML = '';
+
+             if (!products || products.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" class="px-6 py-4 text-sm text-center text-gray-500">No sales data available for products.</td></tr>';
+                return;
+            }
+
+            products.forEach(product => {
+                 const tr = document.createElement('tr');
+                 tr.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${product.name}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${product.quantity}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₹${product.revenue.toFixed(2)}</td>
+                 `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // --- Billing ---
+        function resetInvoiceForm() {
+            console.log("Resetting invoice form");
+            document.getElementById('customerName').value = '';
+            document.getElementById('invoiceDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('paymentMode').value = 'CASH';
+            document.getElementById('transportCharges').value = '0';
+            document.getElementById('roundOff').value = '0';
+            document.getElementById('invoiceItems').innerHTML = ''; // Clear items table body
+            currentViewingInvoiceId = null; // Clear any link to an existing invoice
+            document.getElementById('printInvoiceBtn').disabled = true; // Disable print until saved
+
+            addInvoiceItem(); // Add one empty row to start
+            calculateInvoiceTotal(); // Recalculate totals (should be zero)
+        }
+
+        function addInvoiceItem() {
+            const tbody = document.getElementById('invoiceItems');
+            const newRow = document.createElement('tr');
+            newRow.className = 'invoice-item';
+            const rowCount = tbody.rows.length + 1;
+
+            newRow.innerHTML = `
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500 item-sno">${rowCount}</td>
+                <td class="px-6 py-2 whitespace-nowrap">
+                    <select class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm product-select" data-placeholder="Select Product">
+                        <option value="">Select Product</option>
+                        <!-- Options populated dynamically -->
+                    </select>
+                </td>
+                <td class="px-3 py-2 whitespace-nowrap">
+                    <input type="text" class="block w-20 text-sm border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 hsn-input" readonly>
+                </td>
+                <td class="px-3 py-2 whitespace-nowrap">
+                    <input type="text" class="block w-16 text-sm border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 gst-input" readonly>
+                </td>
+                <td class="px-3 py-2 whitespace-nowrap">
+                    <input type="number" min="0.01" step="0.01" value="1" class="block w-20 text-sm border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 qty-input">
+                </td>
+                <td class="px-3 py-2 whitespace-nowrap">
+                    <input type="number" min="0" step="0.01" class="block w-24 text-sm border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 rate-input">
+                </td>
+                <td class="px-3 py-2 whitespace-nowrap">
+                    <input type="number" min="0" max="100" step="0.01" value="0" class="block w-20 text-sm border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 disc-input">
+                </td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-right text-gray-600 row-amount">0.00</td>
+                <td class="px-3 py-2 whitespace-nowrap text-center text-sm font-medium">
+                    <button type="button" class="text-red-600 hover:text-red-900 delete-item-btn" title="Delete Item">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    </button>
+                </td>
+            `;
+
+            tbody.appendChild(newRow);
+            populateProductSelect(newRow.querySelector('.product-select')); // Populate the new select dropdown
+             updateSerialNumbers();
+        }
+
+        function populateProductSelect(selectElement) {
+             if (!db) { console.error("DB not ready for populating products"); return; }
+             const transaction = db.transaction(['products'], 'readonly');
+             const store = transaction.objectStore('products');
+             const request = store.getAll();
+
+             request.onsuccess = function(event) {
+                const products = event.target.result.sort((a, b) => a.name.localeCompare(b.name)); // Sort alphabetically
+                 // Clear existing options except the placeholder
+                 selectElement.length = 1;
+                 products.forEach(product => {
+                    const option = document.createElement('option');
+                    option.value = product.id;
+                    option.textContent = product.name;
+                    option.dataset.price = product.price; // Store price excl. GST
+                    option.dataset.gst = product.gst;
+                    option.dataset.hsn = product.hsn || '';
+                    selectElement.appendChild(option);
+                 });
+             };
+             request.onerror = function(event) {
+                 console.error("Error fetching products for select:", event.target.error);
+             }
+        }
+
+        function updateProductDetails(selectElement) {
+            const selectedOption = selectElement.options[selectElement.selectedIndex];
+            const row = selectElement.closest('tr');
+
+            if (selectedOption && selectedOption.value) {
+                row.querySelector('.hsn-input').value = selectedOption.dataset.hsn || '';
+                row.querySelector('.gst-input').value = selectedOption.dataset.gst; // Just the number
+                row.querySelector('.rate-input').value = parseFloat(selectedOption.dataset.price || 0).toFixed(2);
+            } else {
+                // Clear fields if "Select Product" is chosen
+                row.querySelector('.hsn-input').value = '';
+                row.querySelector('.gst-input').value = '';
+                row.querySelector('.rate-input').value = '';
+            }
+             calculateRowTotal(row); // Calculate total for this row
+        }
+
+        function handleItemChange(event) {
+             const target = event.target;
+             // If product changed, update details
+            if (target.classList.contains('product-select')) {
+                updateProductDetails(target);
+            }
+             // If qty, rate, or discount changed, recalculate row
+             else if (target.classList.contains('qty-input') || target.classList.contains('rate-input') || target.classList.contains('disc-input')) {
+                 const row = target.closest('tr');
+                 calculateRowTotal(row);
+            }
+        }
+
+        function handleItemClick(event) {
+            // Check if the clicked element or its parent is the delete button
+             const deleteButton = event.target.closest('.delete-item-btn');
+             if (deleteButton) {
+                 deleteRow(deleteButton);
+             }
+        }
+
+        function calculateRowTotal(rowElementOrInputElement) {
+             const row = rowElementOrInputElement.closest('tr');
+             if (!row) return; // Exit if no row found
+
+             const qty = parseFloat(row.querySelector('.qty-input').value) || 0;
+             const rate = parseFloat(row.querySelector('.rate-input').value) || 0; // Price Excl. GST
+             const discPercent = parseFloat(row.querySelector('.disc-input').value) || 0;
+
+             const grossAmount = qty * rate;
+             const discountAmount = grossAmount * (discPercent / 100);
+             const netAmount = grossAmount - discountAmount; // This is the taxable amount for the item
+
+             row.querySelector('.row-amount').textContent = netAmount.toFixed(2);
+
+             // Also store GST rate and amount per item for later calculation
+             const gstRate = parseFloat(row.querySelector('.gst-input').value) || 0;
+             const gstAmount = netAmount * (gstRate / 100);
+             row.dataset.gstRate = gstRate;
+             row.dataset.gstAmount = gstAmount.toFixed(2);
+             row.dataset.taxableAmount = netAmount.toFixed(2);
+
+             calculateInvoiceTotal(); // Recalculate overall invoice totals whenever a row changes
+        }
+
+         function calculateInvoiceTotal() {
+             const itemRows = document.querySelectorAll('#invoiceItems tr.invoice-item');
+             let subTotal = 0;
+             let totalTaxable = 0;
+             let totalCGST = 0;
+             let totalSGST = 0;
+
+             itemRows.forEach(row => {
+                 const taxableAmount = parseFloat(row.dataset.taxableAmount) || 0;
+                 const gstRate = parseFloat(row.dataset.gstRate) || 0;
+                 const gstAmount = taxableAmount * (gstRate / 100);
+
+                 subTotal += taxableAmount; // Subtotal is sum of taxable amounts before transport etc.
+                 totalTaxable += taxableAmount;
+                 totalCGST += gstAmount / 2; // Assuming CGST = SGST = GST/2
+                 totalSGST += gstAmount / 2;
+             });
+
+             const transportCharges = parseFloat(document.getElementById('transportCharges').value) || 0;
+             // Transport charges might be taxable or not - assuming taxable here, add to total taxable value
+             // If transport is NOT taxable, adjust logic. If it has its own GST rate, handle separately.
+             // Let's assume for now transport charge is added *after* item tax calculation but before final total.
+             // A common way is to add transport *before* tax if taxable, or *after* tax if not.
+             // Let's assume transport is added *after* item tax calculation for simplicity.
+             // Update: Typically transport charges might attract their own GST. For simplicity here, adding it to the taxable amount before calculating *overall* tax might be incorrect.
+             // Let's add transport *after* calculating item taxes, but before round off.
+
+             totalTaxable += transportCharges; // Update taxable amount if transport is taxable
+
+             // Recalculate taxes IF transport is taxable (adjust if different GST rate applies)
+             // This part is complex depending on rules. Let's stick to adding transport after tax for now.
+             // If transport IS taxable: You'd add transport to subTotal, recalculate totalTaxable, CGST, SGST based on applicable rates.
+             // If transport is NOT taxable: Add it after tax.
+
+             const finalTaxable = subTotal; // Taxable is just the sum of item taxable amounts
+             const finalCgst = totalCGST;
+             const finalSgst = totalSGST;
+
+             document.getElementById('subTotalAmount').textContent = subTotal.toFixed(2);
+             document.getElementById('taxableAmount').textContent = finalTaxable.toFixed(2); // Display item taxable total
+             document.getElementById('cgstAmount').textContent = finalCgst.toFixed(2);
+             document.getElementById('sgstAmount').textContent = finalSgst.toFixed(2);
+
+             const roundOff = parseFloat(document.getElementById('roundOff').value) || 0;
+             const grandTotal = finalTaxable + finalCgst + finalSgst + transportCharges + roundOff;
+
+             document.getElementById('invoiceTotal').textContent = grandTotal.toFixed(2);
+        }
+
+        function deleteRow(buttonElement) {
+            const row = buttonElement.closest('tr');
+            const tbody = row.parentNode;
+            if (tbody.rows.length > 1) { // Prevent deleting the last row
+                row.remove();
+                updateSerialNumbers();
+                calculateInvoiceTotal(); // Recalculate total after deletion
+            } else {
+                alert("Cannot delete the last item row.");
+            }
+        }
+
+         function updateSerialNumbers() {
+            const rows = document.querySelectorAll('#invoiceItems tr.invoice-item');
+            rows.forEach((row, index) => {
+                const snoCell = row.querySelector('.item-sno');
+                if (snoCell) {
+                    snoCell.textContent = index + 1;
+                }
+            });
+        }
+
+         async function getNextInvoiceNumber() {
+             return new Promise((resolve, reject) => {
+                 if (!db) return reject("Database not initialized");
+                 const transaction = db.transaction(['settings'], 'readwrite'); // Need readwrite to potentially update
+                 const store = transaction.objectStore('settings');
+                 const request = store.get('nextInvoiceNumber');
+
+                 request.onsuccess = (event) => {
+                     let nextNumber = 1; // Default if not found
+                     if (event.target.result) {
+                         nextNumber = event.target.result.value;
+                     } else {
+                         // If key doesn't exist, create it (should have been done in onupgradeneeded, but belt-and-suspenders)
+                         store.put({ key: 'nextInvoiceNumber', value: 1 });
+                     }
+                     resolve(nextNumber);
+                 };
+                 request.onerror = (event) => reject(event.target.error);
+             });
+         }
+
+        async function incrementInvoiceNumber(currentNumber) {
+             return new Promise((resolve, reject) => {
+                  if (!db) return reject("Database not initialized");
+                 const transaction = db.transaction(['settings'], 'readwrite');
+                 const store = transaction.objectStore('settings');
+                 const newValue = currentNumber + 1;
+                 const request = store.put({ key: 'nextInvoiceNumber', value: newValue });
+                 request.onsuccess = () => resolve(newValue);
+                 request.onerror = (event) => reject(event.target.error);
+             });
+         }
+
+        async function saveInvoice() {
+            console.log("Attempting to save invoice...");
+             if (!db) {
+                 alert("Database not ready. Please wait and try again.");
+                 return;
+             }
+
+             const customerName = document.getElementById('customerName').value.trim();
+             if (!customerName) {
+                 alert("Please enter a Customer Name.");
+                 document.getElementById('customerName').focus();
+                 return;
+             }
+
+             const itemRows = document.querySelectorAll('#invoiceItems tr.invoice-item');
+             if (itemRows.length === 0 || !itemRows[0].querySelector('.product-select').value) {
+                 alert("Please add at least one valid item to the invoice.");
+                 return;
+             }
+
+             // Validate all items
+             for (let row of itemRows) {
+                 if (!row.querySelector('.product-select').value) {
+                     alert("Please select a product for all items.");
+                     row.querySelector('.product-select').focus();
+                     return;
+                 }
+                 if (parseFloat(row.querySelector('.qty-input').value) <= 0) {
+                      alert("Please enter a valid quantity (greater than 0) for all items.");
+                     row.querySelector('.qty-input').focus();
+                     return;
+                 }
+                  if (parseFloat(row.querySelector('.rate-input').value) < 0) {
+                      alert("Please enter a valid rate (0 or greater) for all items.");
+                     row.querySelector('.rate-input').focus();
+                     return;
+                 }
+             }
+
+             // Get next invoice number
+             let nextInvoiceNum;
+             try {
+                 nextInvoiceNum = await getNextInvoiceNumber();
+             } catch (error) {
+                 console.error("Error getting next invoice number:", error);
+                 alert("Error generating invoice number. Cannot save.");
+                 return;
+             }
+             const invoiceNumber = `SKCI-${String(nextInvoiceNum).padStart(5, '0')}`; // Example format
+
+             // Prepare invoice data
+             const invoiceData = {
+                 invoiceNumber: invoiceNumber,
+                 customerName: customerName,
+                 customerNameLower: customerName.toLowerCase(), // For searching
+                 date: document.getElementById('invoiceDate').value,
+                 paymentMode: document.getElementById('paymentMode').value,
+                 transportCharges: parseFloat(document.getElementById('transportCharges').value) || 0,
+                 roundOff: parseFloat(document.getElementById('roundOff').value) || 0,
+                 subTotal: parseFloat(document.getElementById('subTotalAmount').textContent) || 0,
+                 taxableAmount: parseFloat(document.getElementById('taxableAmount').textContent) || 0,
+                 cgstAmount: parseFloat(document.getElementById('cgstAmount').textContent) || 0,
+                 sgstAmount: parseFloat(document.getElementById('sgstAmount').textContent) || 0,
+                 totalAmount: parseFloat(document.getElementById('invoiceTotal').textContent) || 0,
+                 createdAt: new Date() // Timestamp for creation
+             };
+
+             // Prepare invoice items data
+             const itemsData = [];
+             itemRows.forEach(row => {
+                 const selectedOption = row.querySelector('.product-select').options[row.querySelector('.product-select').selectedIndex];
+                 itemsData.push({
+                     // invoiceId will be set after invoice is saved
+                     productId: parseInt(selectedOption.value),
+                     productName: selectedOption.textContent, // Store name for reports
+                     hsn: row.querySelector('.hsn-input').value,
+                     gstRate: parseFloat(row.querySelector('.gst-input').value) || 0,
+                     quantity: parseFloat(row.querySelector('.qty-input').value) || 0,
+                     rate: parseFloat(row.querySelector('.rate-input').value) || 0,
+                     discountPercent: parseFloat(row.querySelector('.disc-input').value) || 0,
+                     amount: parseFloat(row.querySelector('.row-amount').textContent) || 0, // Taxable amount for item
+                 });
+             });
+
+
+             // Start transaction
+             const transaction = db.transaction(['invoices', 'invoiceItems'], 'readwrite');
+             const invoicesStore = transaction.objectStore('invoices');
+             const invoiceItemsStore = transaction.objectStore('invoiceItems');
+
+             transaction.oncomplete = async () => {
+                 console.log('Invoice and items saved successfully!');
+                 alert(`Invoice ${invoiceNumber} saved successfully!`);
+                 try {
+                    await incrementInvoiceNumber(nextInvoiceNum); // Increment only on successful save
+                    currentViewingInvoiceId = savedInvoiceId; // Store the ID of the saved invoice
+                    document.getElementById('printInvoiceBtn').disabled = false; // Enable print button
+                    // Optional: Navigate to invoice view or clear form for next entry
+                    // resetInvoiceForm(); // Uncomment to clear form after saving
+                 } catch(incError) {
+                     console.error("Failed to increment invoice number:", incError);
+                     // Handle this error - maybe notify user?
+                 }
+             };
+
+             transaction.onerror = (event) => {
+                 console.error('Transaction error:', event.target.error);
+                 alert('Error saving invoice: ' + event.target.error.message);
+                 document.getElementById('printInvoiceBtn').disabled = true;
+             };
+
+             // Add invoice
+             let savedInvoiceId;
+             const invoiceAddRequest = invoicesStore.add(invoiceData);
+             invoiceAddRequest.onsuccess = (event) => {
+                 savedInvoiceId = event.target.result; // Get the new invoice ID
+                 console.log("Invoice added with ID:", savedInvoiceId);
+
+                 // Add invoice items with the new invoiceId
+                 itemsData.forEach(item => {
+                     item.invoiceId = savedInvoiceId;
+                     const itemAddRequest = invoiceItemsStore.add(item);
+                     itemAddRequest.onerror = (itemEvent) => {
+                          console.error('Error adding invoice item:', itemEvent.target.error);
+                          transaction.abort(); // Abort the whole transaction if one item fails
+                          alert('Error saving invoice item. Invoice save cancelled.');
+                     };
+                 });
+             };
+            invoiceAddRequest.onerror = (event) => {
+                 console.error('Error adding invoice:', event.target.error);
+                 transaction.abort();
+                 alert('Error saving invoice header: ' + event.target.error.message);
+                 document.getElementById('printInvoiceBtn').disabled = true;
+             };
+        }
+
+
+        // --- Products ---
+        function showProductModal(product = null) {
+            const modal = document.getElementById('productModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const productIdInput = document.getElementById('productId');
+            const form = document.getElementById('productForm');
+
+            form.reset(); // Clear previous values
+
+            if (product) {
+                // Edit mode
+                modalTitle.textContent = 'Edit Product';
+                productIdInput.value = product.id;
+                document.getElementById('productName').value = product.name;
+                document.getElementById('productHsn').value = product.hsn || '';
+                document.getElementById('productGst').value = product.gst;
+                document.getElementById('productPrice').value = product.price;
+                currentEditingProductId = product.id;
+            } else {
+                // Add mode
+                modalTitle.textContent = 'Add New Product';
+                productIdInput.value = '';
+                currentEditingProductId = null;
+            }
+            modal.classList.remove('hidden');
+             document.getElementById('productName').focus(); // Focus first field
+        }
+
+        function hideProductModal() {
+            document.getElementById('productModal').classList.add('hidden');
+            document.getElementById('productForm').reset();
+            currentEditingProductId = null;
+        }
+
+        function saveProduct(event) {
+             event.preventDefault(); // Prevent default form submission
+             if (!db) { alert("Database not ready."); return; }
+
+             const productData = {
+                name: document.getElementById('productName').value.trim(),
+                nameLower: document.getElementById('productName').value.trim().toLowerCase(), // For search
+                hsn: document.getElementById('productHsn').value.trim(),
+                gst: parseInt(document.getElementById('productGst').value),
+                price: parseFloat(document.getElementById('productPrice').value)
+             };
+
+             // Basic Validation
+             if (!productData.name || isNaN(productData.gst) || isNaN(productData.price) || productData.price < 0) {
+                 alert('Please fill in Product Name, select GST, and enter a valid Price.');
+                 return;
+             }
+
+             const transaction = db.transaction(['products'], 'readwrite');
+             const store = transaction.objectStore('products');
+             let request;
+
+             if (currentEditingProductId) {
+                 // Update existing product
+                 productData.id = currentEditingProductId;
+                 request = store.put(productData);
+             } else {
+                 // Add new product (ID will be auto-generated)
+                 request = store.add(productData);
+             }
+
+             request.onsuccess = () => {
+                 console.log(`Product ${currentEditingProductId ? 'updated' : 'added'} successfully.`);
+                 hideProductModal();
+                 loadProducts(); // Refresh the product list
+                 populateProductDropdowns(); // Update dropdowns in billing/reports
+             };
+
+             request.onerror = (event) => {
+                 console.error('Error saving product:', event.target.error);
+                 alert('Error saving product: ' + event.target.error.message);
+             };
+        }
+
+         async function loadProducts(page = 1, searchTerm = '') {
+             if (!db) return;
+
+             const productSearchInput = document.getElementById('productSearch');
+             const currentSearchTerm = (searchTerm !== '' ? searchTerm : productSearchInput.value.trim()).toLowerCase();
+
+             const transaction = db.transaction(['products'], 'readonly');
+             const store = transaction.objectStore('products');
+             const index = store.index('nameLower'); // Use the lowercase index for searching
+
+             let range = null;
+             if (currentSearchTerm) {
+                 // Create a range that includes all names starting with the search term
+                 range = IDBKeyRange.bound(currentSearchTerm, currentSearchTerm + '\uffff');
+             }
+
+             let count = 0;
+             const products = [];
+             let cursorRequest;
+
+             if (range) {
+                 cursorRequest = index.openCursor(range);
+             } else {
+                 cursorRequest = store.openCursor(); // Get all if no search term
+             }
+
+
+             // First, count the total matching items for pagination
+             const countRequest = range ? index.count(range) : store.count();
+             let totalItems = 0;
+             countRequest.onsuccess = (e) => {
+                 totalItems = e.target.result;
+
+                 // Now, fetch the items for the current page
+                 let advanced = false;
+                 let itemsLoaded = 0;
+
+                 cursorRequest.onsuccess = (event) => {
+                     const cursor = event.target.result;
+                     if (cursor) {
+                         // Logic to skip items for pagination
+                         if (!advanced && page > 1) {
+                             cursor.advance((page - 1) * ITEMS_PER_PAGE);
+                             advanced = true;
+                             return; // Skip to the next iteration after advancing
+                         }
+
+                         // Add item if we are on the correct page and haven't loaded enough
+                         if (itemsLoaded < ITEMS_PER_PAGE) {
+                             products.push(cursor.value);
+                             itemsLoaded++;
+                         } else {
+                             // Stop iterating once enough items for the page are loaded
+                             displayProducts(products, page, totalItems, currentSearchTerm);
+                             return;
+                         }
+
+                         cursor.continue();
+                     } else {
+                         // End of cursor
+                         displayProducts(products, page, totalItems, currentSearchTerm);
+                     }
+                 };
+                 cursorRequest.onerror = (event) => {
+                     console.error("Error fetching products:", event.target.error);
+                     document.getElementById('productsTable').innerHTML = '<tr><td colspan="6" class="text-center text-red-500">Error loading products</td></tr>';
+                 };
+             }
+             countRequest.onerror = (e) => {
+                  console.error("Error counting products:", event.target.error);
+                  document.getElementById('productsTable').innerHTML = '<tr><td colspan="6" class="text-center text-red-500">Error loading products</td></tr>';
+             }
+        }
+
+         function displayProducts(products, currentPage, totalItems, searchTerm = '') {
+             const tbody = document.getElementById('productsTable');
+             tbody.innerHTML = ''; // Clear previous data
+
+             if (products.length === 0) {
+                 tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-4 text-sm text-center text-gray-500">No products found${searchTerm ? ' matching "' + searchTerm + '"' : ''}.</td></tr>`;
+             } else {
+                 products.forEach(product => {
+                     const tr = document.createElement('tr');
+                     tr.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${product.id}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${product.name}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${product.hsn || '-'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${product.gst}%</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₹${product.price.toFixed(2)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                            <button class="text-indigo-600 hover:text-indigo-900 edit-product-btn" data-id="${product.id}" title="Edit Product">
+                                <svg class="w-5 h-5 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                            </button>
+                            <button class="text-red-600 hover:text-red-900 delete-product-btn" data-id="${product.id}" title="Delete Product">
+                                 <svg class="w-5 h-5 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                 });
+             }
+             renderPagination('productPagination', currentPage, totalItems, (page) => loadProducts(page, searchTerm));
+        }
+
+         function handleProductAction(event) {
+             const target = event.target.closest('button'); // Find the nearest button clicked
+             if (!target) return;
+
+             const productId = parseInt(target.dataset.id);
+             if (isNaN(productId)) return;
+
+             if (target.classList.contains('edit-product-btn')) {
+                 // Fetch product data and show modal
+                 const transaction = db.transaction(['products'], 'readonly');
+                 const store = transaction.objectStore('products');
+                 const request = store.get(productId);
+                 request.onsuccess = (e) => {
+                     const product = e.target.result;
+                     if (product) {
+                         showProductModal(product);
+                     } else {
+                         alert('Product not found.');
+                     }
+                 };
+                 request.onerror = (e) => alert('Error fetching product details.');
+
+             } else if (target.classList.contains('delete-product-btn')) {
+                 if (confirm(`Are you sure you want to delete product ID ${productId}? This action cannot be undone.`)) {
+                     deleteProduct(productId);
+                 }
+             }
+         }
+
+         function deleteProduct(productId) {
+             if (!db) return;
+             const transaction = db.transaction(['products'], 'readwrite');
+             const store = transaction.objectStore('products');
+             const request = store.delete(productId);
+
+             request.onsuccess = () => {
+                 console.log(`Product ${productId} deleted successfully.`);
+                 loadProducts(); // Refresh the list
+                 populateProductDropdowns(); // Update dropdowns
+             };
+             request.onerror = (event) => {
+                 console.error(`Error deleting product ${productId}:`, event.target.error);
+                 alert('Error deleting product.');
+             };
+         }
+
+        // --- Invoices ---
+          async function loadInvoices(page = 1, searchTerm = '') {
+             if (!db) return;
+
+             const invoiceSearchInput = document.getElementById('invoiceSearch');
+             const currentSearchTerm = (searchTerm !== '' ? searchTerm : invoiceSearchInput.value.trim()).toLowerCase();
+
+             const transaction = db.transaction(['invoices'], 'readonly');
+             const store = transaction.objectStore('invoices');
+
+             let index;
+             let range = null;
+             let searchOn = 'invoiceNumber'; // Default: search by invoice number
+
+             // Determine if searching by name or number
+             if (currentSearchTerm && isNaN(parseInt(currentSearchTerm.replace('SKCI-', '')))) { // Check if it's likely a name
+                index = store.index('customerNameLower');
+                range = IDBKeyRange.bound(currentSearchTerm, currentSearchTerm + '\uffff');
+                searchOn = 'customerNameLower';
+             } else if (currentSearchTerm) { // Likely an invoice number (or part of it)
+                index = store.index('invoiceNumber');
+                 // Use startsWith for invoice number search if needed, or exact match/bound
+                // range = IDBKeyRange.only(currentSearchTerm.toUpperCase()); // For exact match search
+                range = IDBKeyRange.bound(currentSearchTerm.toUpperCase(), currentSearchTerm.toUpperCase() + '\uffff'); // For startsWith search
+                searchOn = 'invoiceNumber';
+             } else {
+                 // No search term, get all using the primary key cursor (usually sorted by ID)
+                 index = store; // Use the store itself to iterate by primary key
+             }
+
+
+             // Count total items matching the criteria
+             const countRequest = range ? index.count(range) : store.count();
+             let totalItems = 0;
+
+             countRequest.onsuccess = (e) => {
+                 totalItems = e.target.result;
+
+                 // Fetch items for the current page (using reverse cursor for recent first)
+                 let cursorRequest;
+                 // Use 'prev' direction ONLY when not searching to get recent first.
+                 // When searching, use 'next' to maintain index order.
+                 const direction = (!range && searchOn !== 'invoiceNumber') ? 'prev' : 'next'; // Sort by ID descending if no search
+
+                 if (range) {
+                     cursorRequest = index.openCursor(range, direction); // Iterate index based on search
+                 } else {
+                     cursorRequest = store.openCursor(null, direction); // Iterate store by ID descending
+                 }
+
+
+                 let advanced = false;
+                 let itemsLoaded = 0;
+                 const invoices = [];
+
+                 cursorRequest.onsuccess = (event) => {
+                     const cursor = event.target.result;
+                     if (cursor) {
+                         if (!advanced && page > 1) {
+                             cursor.advance((page - 1) * ITEMS_PER_PAGE);
+                             advanced = true;
+                             return;
+                         }
+
+                         if (itemsLoaded < ITEMS_PER_PAGE) {
+                             invoices.push(cursor.value);
+                             itemsLoaded++;
+                         } else {
+                             displayInvoices(invoices, page, totalItems, currentSearchTerm);
+                             return; // Stop after loading page items
+                         }
+                         cursor.continue();
+                     } else {
+                         displayInvoices(invoices, page, totalItems, currentSearchTerm); // End of cursor
+                     }
+                 };
+                 cursorRequest.onerror = (event) => {
+                     console.error("Error fetching invoices:", event.target.error);
+                      document.getElementById('invoicesTable').innerHTML = '<tr><td colspan="6" class="text-center text-red-500">Error loading invoices</td></tr>';
+                 };
+             }
+             countRequest.onerror = (e) => {
+                  console.error("Error counting invoices:", event.target.error);
+                  document.getElementById('invoicesTable').innerHTML = '<tr><td colspan="6" class="text-center text-red-500">Error loading invoices</td></tr>';
+             }
+        }
+
+         function displayInvoices(invoices, currentPage, totalItems, searchTerm = '') {
+            const tbody = document.getElementById('invoicesTable');
+            tbody.innerHTML = ''; // Clear previous data
+
+            if (invoices.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-4 text-sm text-center text-gray-500">No invoices found${searchTerm ? ' matching "' + searchTerm + '"' : ''}.</td></tr>`;
+            } else {
+                invoices.forEach(invoice => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-indigo-600 hover:text-indigo-900">
+                           <button class="view-invoice-btn underline" data-id="${invoice.id}">${invoice.invoiceNumber}</button>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${invoice.date}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${invoice.customerName}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₹${(invoice.totalAmount || 0).toFixed(2)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${invoice.paymentMode}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                            <button class="text-green-600 hover:text-green-900 print-invoice-list-btn" data-id="${invoice.id}" title="Print Invoice">
+                               <svg class="w-5 h-5 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                            </button>
+                            <button class="text-red-600 hover:text-red-900 delete-invoice-btn" data-id="${invoice.id}" title="Delete Invoice">
+                               <svg class="w-5 h-5 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+             }
+              renderPagination('invoicePagination', currentPage, totalItems, (page) => loadInvoices(page, searchTerm));
+        }
+
+        function handleInvoiceAction(event) {
+             const target = event.target.closest('button'); // Find the nearest button clicked
+             if (!target) return;
+
+             const invoiceId = parseInt(target.dataset.id);
+             if (isNaN(invoiceId)) return;
+
+              if (target.classList.contains('view-invoice-btn')) {
+                 viewInvoice(invoiceId);
+             } else if (target.classList.contains('print-invoice-list-btn')) {
+                 printInvoice(invoiceId);
+             } else if (target.classList.contains('delete-invoice-btn')) {
+                 if (confirm(`Are you sure you want to delete Invoice ID ${invoiceId}? This will also delete associated items and cannot be undone.`)) {
+                     deleteInvoice(invoiceId);
+                 }
+             }
+        }
+
+         async function viewInvoice(invoiceId) {
+             if (!db) return;
+             console.log(`Viewing invoice ID: ${invoiceId}`);
+
+             const transaction = db.transaction(['invoices', 'invoiceItems'], 'readonly');
+             const invoicesStore = transaction.objectStore('invoices');
+             const itemsStore = transaction.objectStore('invoiceItems');
+             const itemIndex = itemsStore.index('invoiceId');
+
+             const invoiceRequest = invoicesStore.get(invoiceId);
+
+             invoiceRequest.onsuccess = (e) => {
+                 const invoiceData = e.target.result;
+                 if (!invoiceData) {
+                     alert("Invoice not found.");
+                     return;
+                 }
+
+                 const itemsRequest = itemIndex.getAll(invoiceId);
+                 itemsRequest.onsuccess = (e2) => {
+                     const itemsData = e2.target.result;
+                     // Use the existing print template structure but populate it inside the modal
+                     const printTemplate = document.getElementById('invoicePrintTemplate').cloneNode(true);
+                     printTemplate.removeAttribute('id'); // Avoid duplicate IDs
+                     populateInvoiceTemplate(printTemplate, invoiceData, itemsData);
+
+                     // Put the populated template into the modal content area
+                     const modalContent = document.getElementById('viewInvoiceContent');
+                     modalContent.innerHTML = ''; // Clear previous
+                     modalContent.appendChild(printTemplate.firstElementChild); // Append the inner div
+
+                     // Update modal title and print button data attribute
+                     document.getElementById('viewInvoiceTitle').textContent = `Invoice Details - ${invoiceData.invoiceNumber}`;
+                     document.getElementById('printViewInvoiceBtn').dataset.invoiceId = invoiceId;
+
+                     // Show the modal
+                     document.getElementById('viewInvoiceModal').classList.remove('hidden');
+                 };
+                 itemsRequest.onerror = (e2) => {
+                      console.error("Error fetching invoice items for view:", e2.target.error);
+                      alert("Error fetching invoice items.");
+                 }
+             };
+             invoiceRequest.onerror = (e) => {
+                 console.error("Error fetching invoice for view:", e.target.error);
+                 alert("Error fetching invoice details.");
+             };
+         }
+
+
+         function deleteInvoice(invoiceId) {
+             if (!db) return;
+             console.log(`Deleting invoice ID: ${invoiceId}`);
+
+             const transaction = db.transaction(['invoices', 'invoiceItems'], 'readwrite');
+             const invoicesStore = transaction.objectStore('invoices');
+             const itemsStore = transaction.objectStore('invoiceItems');
+             const itemIndex = itemsStore.index('invoiceId');
+
+             // 1. Delete invoice header
+             const deleteInvoiceReq = invoicesStore.delete(invoiceId);
+             deleteInvoiceReq.onsuccess = () => {
+                 console.log(`Invoice header ${invoiceId} deleted.`);
+                 // 2. Delete associated items
+                 const itemCursorReq = itemIndex.openKeyCursor(IDBKeyRange.only(invoiceId));
+                 itemCursorReq.onsuccess = (e) => {
+                     const cursor = e.target.result;
+                     if (cursor) {
+                         itemsStore.delete(cursor.primaryKey); // Delete item by its primary key
+                         cursor.continue();
+                     } else {
+                         console.log(`Associated items for invoice ${invoiceId} deleted.`);
+                         // No need for explicit transaction commit, oncomplete handles it.
+                     }
+                 };
+                 itemCursorReq.onerror = (e) => {
+                      console.error(`Error opening cursor to delete items for invoice ${invoiceId}:`, e.target.error);
+                       transaction.abort(); // Abort if we can't delete items properly
+                 }
+             };
+             deleteInvoiceReq.onerror = (e) => {
+                  console.error(`Error deleting invoice header ${invoiceId}:`, e.target.error);
+                  transaction.abort();
+                  alert("Error deleting invoice header.");
+             }
+
+             transaction.oncomplete = () => {
+                 console.log(`Transaction complete for deleting invoice ${invoiceId}.`);
+                 alert(`Invoice ID ${invoiceId} deleted successfully.`);
+                 loadInvoices(); // Refresh invoice list
+                 loadDashboardData(); // Update dashboard counts/stats
+             };
+             transaction.onerror = (e) => {
+                  console.error(`Transaction error during invoice deletion ${invoiceId}:`, e.target.error);
+                  alert("An error occurred during the deletion process.");
+             }
+         }
+
+        // --- Reports ---
+        function populateProductDropdowns() {
+             const selectIds = ['productReportProduct']; // Add more IDs if needed
+             if (!db) return;
+
+             const transaction = db.transaction(['products'], 'readonly');
+             const store = transaction.objectStore('products');
+             const request = store.getAll();
+
+             request.onsuccess = (event) => {
+                 const products = event.target.result.sort((a, b) => a.name.localeCompare(b.name));
+                 selectIds.forEach(id => {
+                     const select = document.getElementById(id);
+                     if (select) {
+                         // Clear existing options (keep the first 'All Products' or similar)
+                         const firstOptionValue = select.options.length > 0 ? select.options[0].value : "";
+                         const firstOptionText = select.options.length > 0 ? select.options[0].textContent : "Select Product";
+                         select.innerHTML = `<option value="${firstOptionValue}">${firstOptionText}</option>`; // Reset with the first option
+
+                         products.forEach(product => {
+                             const option = document.createElement('option');
+                             option.value = product.id; // Use ID as value
+                             option.textContent = product.name;
+                             select.appendChild(option);
+                         });
+                     }
+                 });
+             };
+             request.onerror = (event) => {
+                 console.error("Error populating product dropdowns:", event.target.error);
+             };
+         }
+
+        function generateSalesReport() {
+             const startDate = document.getElementById('salesReportStartDate').value;
+             const endDate = document.getElementById('salesReportEndDate').value;
+
+             if (!startDate || !endDate) {
+                 alert("Please select both Start and End dates for the Sales Report.");
+                 return;
+             }
+             if (startDate > endDate) {
+                  alert("Start Date cannot be after End Date.");
+                 return;
+             }
+
+             const transaction = db.transaction(['invoices'], 'readonly');
+             const store = transaction.objectStore('invoices');
+             const index = store.index('date');
+             const range = IDBKeyRange.bound(startDate, endDate);
+
+             const request = index.getAll(range);
+
+             request.onsuccess = (event) => {
+                 const invoices = event.target.result;
+                 let reportHtml = `<h4 class="font-semibold mb-2">Sales Report (${startDate} to ${endDate})</h4>`;
+                 if (invoices.length === 0) {
+                     reportHtml += '<p>No sales found in this period.</p>';
+                 } else {
+                     reportHtml += `<table class="min-w-full divide-y divide-gray-200 text-sm">
+                        <thead class="bg-gray-50"><tr>
+                            <th class="px-4 py-2 text-left">Inv No</th>
+                            <th class="px-4 py-2 text-left">Date</th>
+                            <th class="px-4 py-2 text-left">Customer</th>
+                            <th class="px-4 py-2 text-right">Taxable Amt</th>
+                            <th class="px-4 py-2 text-right">CGST</th>
+                            <th class="px-4 py-2 text-right">SGST</th>
+                            <th class="px-4 py-2 text-right">Transport</th>
+                            <th class="px-4 py-2 text-right">Round Off</th>
+                            <th class="px-4 py-2 text-right">Total</th>
+                        </tr></thead><tbody class="bg-white divide-y divide-gray-200">`;
+
+                     let totalTaxable = 0, totalCgst = 0, totalSgst = 0, totalTransport = 0, totalRoundOff = 0, grandTotal = 0;
+                     invoices.sort((a, b) => a.date.localeCompare(b.date)); // Sort by date
+                     invoices.forEach(inv => {
+                         reportHtml += `<tr>
+                             <td class="px-4 py-2">${inv.invoiceNumber}</td>
+                             <td class="px-4 py-2">${inv.date}</td>
+                             <td class="px-4 py-2">${inv.customerName}</td>
+                             <td class="px-4 py-2 text-right">${(inv.taxableAmount || 0).toFixed(2)}</td>
+                             <td class="px-4 py-2 text-right">${(inv.cgstAmount || 0).toFixed(2)}</td>
+                             <td class="px-4 py-2 text-right">${(inv.sgstAmount || 0).toFixed(2)}</td>
+                             <td class="px-4 py-2 text-right">${(inv.transportCharges || 0).toFixed(2)}</td>
+                             <td class="px-4 py-2 text-right">${(inv.roundOff || 0).toFixed(2)}</td>
+                             <td class="px-4 py-2 text-right font-semibold">${(inv.totalAmount || 0).toFixed(2)}</td>
+                         </tr>`;
+                         totalTaxable += (inv.taxableAmount || 0);
+                         totalCgst += (inv.cgstAmount || 0);
+                         totalSgst += (inv.sgstAmount || 0);
+                         totalTransport += (inv.transportCharges || 0);
+                         totalRoundOff += (inv.roundOff || 0);
+                         grandTotal += (inv.totalAmount || 0);
+                     });
+
+                     reportHtml += `</tbody><tfoot class="bg-gray-100 font-bold"><tr>
+                         <td colspan="3" class="px-4 py-2 text-right">Totals:</td>
+                         <td class="px-4 py-2 text-right">${totalTaxable.toFixed(2)}</td>
+                         <td class="px-4 py-2 text-right">${totalCgst.toFixed(2)}</td>
+                         <td class="px-4 py-2 text-right">${totalSgst.toFixed(2)}</td>
+                         <td class="px-4 py-2 text-right">${totalTransport.toFixed(2)}</td>
+                         <td class="px-4 py-2 text-right">${totalRoundOff.toFixed(2)}</td>
+                         <td class="px-4 py-2 text-right">${grandTotal.toFixed(2)}</td>
+                     </tr></tfoot></table>`;
+                 }
+                 displayReport("Sales Report", reportHtml);
+             };
+             request.onerror = (event) => {
+                  console.error("Error generating sales report:", event.target.error);
+                  displayReport("Sales Report", "<p class='text-red-500'>Error generating report.</p>");
+             }
+        }
+
+        function generateProductReport() {
+            const productId = document.getElementById('productReportProduct').value;
+            const productName = document.getElementById('productReportProduct').options[document.getElementById('productReportProduct').selectedIndex].text;
+            const startDate = document.getElementById('productReportStartDate').value;
+            const endDate = document.getElementById('productReportEndDate').value;
+
+            if (!startDate || !endDate) {
+                 alert("Please select both Start and End dates for the Product Sales Report.");
+                 return;
+            }
+             if (startDate > endDate) {
+                  alert("Start Date cannot be after End Date.");
+                 return;
+             }
+
+            const transaction = db.transaction(['invoices', 'invoiceItems'], 'readonly');
+            const invoicesStore = transaction.objectStore('invoices');
+            const itemsStore = transaction.objectStore('invoiceItems');
+            const invoiceDateIndex = invoicesStore.index('date');
+            const itemProductIndex = itemsStore.index('productId'); // Use productId index
+
+            const dateRange = IDBKeyRange.bound(startDate, endDate);
+            let productSales = {}; // { productId: { name: '...', qty: 0, amount: 0 } }
+
+            invoiceDateIndex.openCursor(dateRange).onsuccess = (event) => {
+                const invoiceCursor = event.target.result;
+                if (invoiceCursor) {
+                    const invoice = invoiceCursor.value;
+                    const invoiceId = invoice.id;
+
+                    // Get items for this specific invoice
+                    const itemRequest = itemsStore.index('invoiceId').getAll(invoiceId);
+                    itemRequest.onsuccess = (e) => {
+                        const items = e.target.result;
+                        items.forEach(item => {
+                            // Filter by selected product if one is chosen
+                            if (!productId || String(item.productId) === productId) {
+                                if (!productSales[item.productId]) {
+                                    productSales[item.productId] = { name: item.productName, qty: 0, amount: 0 };
+                                }
+                                productSales[item.productId].qty += item.quantity;
+                                productSales[item.productId].amount += item.amount; // Item's taxable amount
+                            }
+                        });
+                        invoiceCursor.continue(); // Move to the next invoice in the date range
+                    };
+                    itemRequest.onerror = (e) => {
+                        console.error("Error fetching items for invoice", invoiceId, e.target.error);
+                        invoiceCursor.continue(); // Try to continue with the next invoice
+                    }
+                } else {
+                    // All invoices in date range processed
+                    let reportHtml = `<h4 class="font-semibold mb-2">Product Sales Report ${productId ? `(${productName})` : '(All Products)'} (${startDate} to ${endDate})</h4>`;
+                     const salesArray = Object.values(productSales).sort((a,b) => a.name.localeCompare(b.name)); // Sort by name
+
+                    if (salesArray.length === 0) {
+                        reportHtml += '<p>No sales found for the selected criteria.</p>';
+                    } else {
+                        reportHtml += `<table class="min-w-full divide-y divide-gray-200 text-sm">
+                            <thead class="bg-gray-50"><tr>
+                                <th class="px-4 py-2 text-left">Product</th>
+                                <th class="px-4 py-2 text-right">Quantity Sold</th>
+                                <th class="px-4 py-2 text-right">Total Taxable Amount</th>
+                            </tr></thead><tbody class="bg-white divide-y divide-gray-200">`;
+
+                        let totalQty = 0, totalAmount = 0;
+                        salesArray.forEach(sale => {
+                            reportHtml += `<tr>
+                                <td class="px-4 py-2">${sale.name}</td>
+                                <td class="px-4 py-2 text-right">${sale.qty.toFixed(2)}</td>
+                                <td class="px-4 py-2 text-right">${sale.amount.toFixed(2)}</td>
+                            </tr>`;
+                            totalQty += sale.qty;
+                            totalAmount += sale.amount;
+                        });
+
+                         reportHtml += `</tbody><tfoot class="bg-gray-100 font-bold"><tr>
+                             <td class="px-4 py-2 text-right">Totals:</td>
+                             <td class="px-4 py-2 text-right">${totalQty.toFixed(2)}</td>
+                             <td class="px-4 py-2 text-right">${totalAmount.toFixed(2)}</td>
+                         </tr></tfoot></table>`;
+                    }
+                    displayReport("Product Sales Report", reportHtml);
+                }
+            };
+             invoiceDateIndex.openCursor(dateRange).onerror = (event) => {
+                  console.error("Error iterating invoices for product report:", event.target.error);
+                  displayReport("Product Sales Report", "<p class='text-red-500'>Error generating report.</p>");
+             }
+        }
+
+        function generateGstReport() {
+            const startDate = document.getElementById('gstReportStartDate').value;
+            const endDate = document.getElementById('gstReportEndDate').value;
+
+             if (!startDate || !endDate) {
+                 alert("Please select both Start and End dates for the GST Report.");
+                 return;
+             }
+             if (startDate > endDate) {
+                  alert("Start Date cannot be after End Date.");
+                 return;
+             }
+
+            const transaction = db.transaction(['invoices', 'invoiceItems'], 'readonly');
+            const invoicesStore = transaction.objectStore('invoices');
+            const itemsStore = transaction.objectStore('invoiceItems');
+            const invoiceDateIndex = invoicesStore.index('date');
+
+            const dateRange = IDBKeyRange.bound(startDate, endDate);
+            let gstSummary = {}; // { '5%': { taxable: 0, cgst: 0, sgst: 0 }, '12%': {...} }
+
+            invoiceDateIndex.openCursor(dateRange).onsuccess = (event) => {
+                const invoiceCursor = event.target.result;
+                if (invoiceCursor) {
+                    const invoiceId = invoiceCursor.value.id;
+                    const itemRequest = itemsStore.index('invoiceId').getAll(invoiceId);
+
+                    itemRequest.onsuccess = (e) => {
+                        const items = e.target.result;
+                        items.forEach(item => {
+                            const gstRate = item.gstRate;
+                            const key = `${gstRate}%`;
+                            const taxableAmount = item.amount;
+                            const cgst = taxableAmount * (gstRate / 2 / 100);
+                            const sgst = taxableAmount * (gstRate / 2 / 100);
+
+                            if (!gstSummary[key]) {
+                                gstSummary[key] = { taxable: 0, cgst: 0, sgst: 0 };
+                            }
+                            gstSummary[key].taxable += taxableAmount;
+                            gstSummary[key].cgst += cgst;
+                            gstSummary[key].sgst += sgst;
+                        });
+                         invoiceCursor.continue();
+                    };
+                     itemRequest.onerror = (e) => {
+                        console.error("Error fetching items for GST report, invoice", invoiceId, e.target.error);
+                         invoiceCursor.continue(); // Try next invoice
+                    }
+                } else {
+                    // All invoices processed
+                    let reportHtml = `<h4 class="font-semibold mb-2">GST Summary Report (${startDate} to ${endDate})</h4>`;
+                    const sortedRates = Object.keys(gstSummary).sort((a, b) => parseFloat(a) - parseFloat(b));
+
+                    if (sortedRates.length === 0) {
+                        reportHtml += '<p>No GST data found in this period.</p>';
+                    } else {
+                        reportHtml += `<table class="min-w-full divide-y divide-gray-200 text-sm">
+                            <thead class="bg-gray-50"><tr>
+                                <th class="px-4 py-2 text-left">GST Rate</th>
+                                <th class="px-4 py-2 text-right">Total Taxable Value</th>
+                                <th class="px-4 py-2 text-right">Total CGST</th>
+                                <th class="px-4 py-2 text-right">Total SGST</th>
+                                <th class="px-4 py-2 text-right">Total GST</th>
+                            </tr></thead><tbody class="bg-white divide-y divide-gray-200">`;
+
+                        let grandTaxable = 0, grandCgst = 0, grandSgst = 0, grandTotalGst = 0;
+                        sortedRates.forEach(rateKey => {
+                            const data = gstSummary[rateKey];
+                            const totalGst = data.cgst + data.sgst;
+                             reportHtml += `<tr>
+                                <td class="px-4 py-2">${rateKey}</td>
+                                <td class="px-4 py-2 text-right">${data.taxable.toFixed(2)}</td>
+                                <td class="px-4 py-2 text-right">${data.cgst.toFixed(2)}</td>
+                                <td class="px-4 py-2 text-right">${data.sgst.toFixed(2)}</td>
+                                <td class="px-4 py-2 text-right">${totalGst.toFixed(2)}</td>
+                            </tr>`;
+                             grandTaxable += data.taxable;
+                             grandCgst += data.cgst;
+                             grandSgst += data.sgst;
+                             grandTotalGst += totalGst;
+                        });
+
+                        reportHtml += `</tbody><tfoot class="bg-gray-100 font-bold"><tr>
+                            <td class="px-4 py-2 text-right">Totals:</td>
+                            <td class="px-4 py-2 text-right">${grandTaxable.toFixed(2)}</td>
+                            <td class="px-4 py-2 text-right">${grandCgst.toFixed(2)}</td>
+                            <td class="px-4 py-2 text-right">${grandSgst.toFixed(2)}</td>
+                            <td class="px-4 py-2 text-right">${grandTotalGst.toFixed(2)}</td>
+                        </tr></tfoot></table>`;
+                    }
+                    displayReport("GST Summary Report", reportHtml);
+                }
+            };
+              invoiceDateIndex.openCursor(dateRange).onerror = (event) => {
+                  console.error("Error iterating invoices for GST report:", event.target.error);
+                  displayReport("GST Summary Report", "<p class='text-red-500'>Error generating report.</p>");
+             }
+        }
+
+        function displayReport(title, contentHtml) {
+            document.getElementById('reportTitle').textContent = title;
+            document.getElementById('reportContent').innerHTML = contentHtml;
+            document.getElementById('reportResults').classList.remove('hidden');
+             // Scroll to the results
+            document.getElementById('reportResults').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function exportReportToPDF() {
+            const reportTitle = document.getElementById('reportTitle').textContent;
+            const reportContent = document.getElementById('reportContent');
+            const table = reportContent.querySelector('table');
+
+            if (!table) {
+                alert("No table found in the report to export.");
+                return;
+            }
+
+            const doc = new jsPDF();
+
+            doc.setFontSize(16);
+            doc.text(reportTitle, 14, 16);
+
+            // Use autoTable plugin
+            doc.autoTable({
+                html: table,
+                startY: 22, // Start below the title
+                theme: 'grid', // 'striped', 'grid', 'plain'
+                 styles: { fontSize: 8, cellPadding: 1.5 },
+                 headStyles: { fillColor: [79, 70, 229], textColor: 255, fontSize: 9, fontStyle: 'bold' }, // Indigo header
+                 footStyles: { fillColor: [229, 231, 235], textColor: 0, fontSize: 9, fontStyle: 'bold' }, // Gray footer
+                 alternateRowStyles: { fillColor: [243, 244, 246] }, // Light gray alternate rows
+                 didParseCell: function (data) {
+                    // Align numeric columns to the right (example: columns 3 onwards)
+                    if (data.column.index >= 3 && data.cell.section === 'body') {
+                         data.cell.styles.halign = 'right';
+                     }
+                     // Align header/footer text
+                    if (data.cell.section === 'head' || data.cell.section === 'foot') {
+                         data.cell.styles.halign = (data.column.index >= 3) ? 'right' : 'left';
+                     }
+                 }
+            });
+
+            doc.save(`${reportTitle.replace(/ /g, '_')}.pdf`);
+        }
+
+
+         // --- Printing ---
+
+         // Function to populate the hidden print template
+        function populateInvoiceTemplate(templateElement, invoiceData, itemsData) {
+             // Helper to set text content safely
+             const setText = (id, value) => {
+                 const el = templateElement.querySelector(`#${id}`);
+                 if (el) el.textContent = value !== undefined && value !== null ? value : '';
+                 else console.warn(`Element not found in template: #${id}`);
+             };
+             const setFloat = (id, value) => setText(id, (parseFloat(value) || 0).toFixed(2));
+
+             // Populate Header
+             setText('printCustomerName', invoiceData.customerName);
+             setText('printCustomerGst', invoiceData.customerGst || '-'); // Add customer GST if available
+             setText('printInvoiceNo', invoiceData.invoiceNumber);
+             setText('printInvoiceDate', invoiceData.date);
+             setText('printPaymentMode', invoiceData.paymentMode);
+             // Add other header fields if they exist in invoiceData and the template
+             // setText('printVehicleNo', invoiceData.vehicleNo || '-');
+             // setText('printDeliveryDate', invoiceData.deliveryDate || invoiceData.date);
+             // setText('printDestination', invoiceData.destination || '-');
+
+
+            // Populate Items
+            const itemsTbody = templateElement.querySelector('#printInvoiceItems');
+            itemsTbody.innerHTML = ''; // Clear existing
+            let itemTotalTaxable = 0;
+            let taxSummary = {}; // { 'HSN-GST%': { taxable: 0, cgstRate: 0, sgstRate: 0, cgstAmt: 0, sgstAmt: 0 } }
+
+            itemsData.forEach((item, index) => {
+                 const tr = document.createElement('tr');
+                 const itemAmount = item.amount || 0; // Item taxable amount
+                 const gstRate = item.gstRate || 0;
+                 const cgstRate = gstRate / 2;
+                 const sgstRate = gstRate / 2;
+                 const cgstAmt = itemAmount * (cgstRate / 100);
+                 const sgstAmt = itemAmount * (sgstRate / 100);
+
+                 tr.innerHTML = `
+                    <td class="p-1 border border-gray-400 text-center">${index + 1}</td>
+                    <td class="p-1 border border-gray-400">${item.productName}</td>
+                    <td class="p-1 border border-gray-400 text-center">${item.hsn || '-'}</td>
+                    <td class="p-1 border border-gray-400 text-center">${gstRate}%</td>
+                    <td class="p-1 border border-gray-400 text-right">${item.quantity.toFixed(2)}</td>
+                    <td class="p-1 border border-gray-400 text-right">${item.rate.toFixed(2)}</td>
+                    <td class="p-1 border border-gray-400 text-right">${item.discountPercent.toFixed(2)}%</td>
+                    <td class="p-1 border border-gray-400 text-right">${itemAmount.toFixed(2)}</td>
+                 `;
+                 itemsTbody.appendChild(tr);
+                 itemTotalTaxable += itemAmount;
+
+                 // Aggregate Tax Summary by HSN + GST Rate
+                 const taxKey = `${item.hsn || 'NA'}-${gstRate}`;
+                 if (!taxSummary[taxKey]) {
+                     taxSummary[taxKey] = { hsn: item.hsn || 'NA', taxable: 0, cgstRate: cgstRate, sgstRate: sgstRate, cgstAmt: 0, sgstAmt: 0 };
+                 }
+                 taxSummary[taxKey].taxable += itemAmount;
+                 taxSummary[taxKey].cgstAmt += cgstAmt;
+                 taxSummary[taxKey].sgstAmt += sgstAmt;
+            });
+
+            // Populate Footer Totals
+            setFloat('printSubTotal', itemTotalTaxable); // Subtotal of items
+            setFloat('printTransportCharges', invoiceData.transportCharges);
+            setFloat('printTaxableAmount', invoiceData.taxableAmount); // Overall taxable amount from invoice data
+            setFloat('printCgstAmount', invoiceData.cgstAmount);
+            setFloat('printSgstAmount', invoiceData.sgstAmount);
+            setFloat('printRoundOff', invoiceData.roundOff);
+            setFloat('printInvoiceTotal', invoiceData.totalAmount);
+
+            // Populate Amount in Words
+            setText('printAmountInWords', numberToWords(invoiceData.totalAmount || 0));
+
+            // Populate Tax Summary Table
+            const taxTbody = templateElement.querySelector('#printTaxSummary');
+             taxTbody.innerHTML = '';
+             let totalTaxVal = 0, totalCgst = 0, totalSgst = 0, totalTax = 0;
+             Object.values(taxSummary).forEach(tax => {
+                 const rowTax = tax.cgstAmt + tax.sgstAmt;
+                 const tr = document.createElement('tr');
+                 tr.innerHTML = `
+                     <td class="p-1 border border-gray-400">${tax.hsn}</td>
+                     <td class="p-1 border border-gray-400 text-right">${tax.taxable.toFixed(2)}</td>
+                     <td class="p-1 border border-gray-400 text-center">${tax.cgstRate.toFixed(2)}%</td>
+                     <td class="p-1 border border-gray-400 text-right">${tax.cgstAmt.toFixed(2)}</td>
+                     <td class="p-1 border border-gray-400 text-center">${tax.sgstRate.toFixed(2)}%</td>
+                     <td class="p-1 border border-gray-400 text-right">${tax.sgstAmt.toFixed(2)}</td>
+                     <td class="p-1 border border-gray-400 text-right">${rowTax.toFixed(2)}</td>
+                 `;
+                 taxTbody.appendChild(tr);
+                 totalTaxVal += tax.taxable;
+                 totalCgst += tax.cgstAmt;
+                 totalSgst += tax.sgstAmt;
+                 totalTax += rowTax;
+             });
+
+             // Populate Tax Summary Footer
+             setFloat('printTotalTaxableVal', totalTaxVal);
+             setFloat('printTotalCGSTAmt', totalCgst);
+             setFloat('printTotalSGSTAmt', totalSgst);
+             setFloat('printTotalTaxAmt', totalTax);
+
+             // Populate Tax Amount in Words
+            setText('printTaxInWords', numberToWords(totalTax || 0));
+
+        }
+
+        // Function to trigger actual printing
+        function triggerPrint(elementId) {
+            const printContent = document.getElementById(elementId);
+            if (!printContent) {
+                 console.error("Print content not found:", elementId);
+                 return;
+            }
+            const printWindow = window.open('', '_blank', 'height=800,width=800');
+            printWindow.document.write('<html><head><title>Print Invoice</title>');
+            // Inject Tailwind CSS for printing (optional, can make it look better)
+             printWindow.document.write('<script src="https://cdn.tailwindcss.com"><\/script>');
+             printWindow.document.write('<style>body { font-family: sans-serif; margin: 20px; } @page { size: A4; margin: 15mm; } table { width: 100%; border-collapse: collapse; } th, td { border: 1px solid #ccc; padding: 4px; font-size: 9pt; } thead th { background-color: #eee; } tfoot { font-weight: bold; } .text-right { text-align: right;} .text-center { text-align: center;} .text-lg { font-size: 11pt; } .font-bold { font-weight: bold; } .mt-1 { margin-top: 0.25rem; } .mt-2 { margin-top: 0.5rem; } .mt-4 { margin-top: 1rem; } .mt-6 { margin-top: 1.5rem; } .mt-8 { margin-top: 2rem; } .mb-2 { margin-bottom: 0.5rem; } .p-1 { padding: 0.25rem;} .p-2 { padding: 0.5rem;} .pr-2 { padding-right: 0.5rem;} .pl-2 { padding-left: 0.5rem;} .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem;} .flex { display: flex; } .justify-between { justify-content: space-between; } .w-1\/2 { width: 50%; } .border { border-width: 1px; } .border-t { border-top-width: 1px; } .border-b { border-bottom-width: 1px; } .border-l { border-left-width: 1px; } .border-gray-300 { border-color: #d1d5db; } .border-gray-400 { border-color: #9ca3af; } .bg-gray-100 { background-color: #f3f4f6; } em { font-style: italic; } strong { font-weight: bold;}<\/style>');
+            printWindow.document.write('</head><body>');
+            printWindow.document.write(printContent.innerHTML);
+            printWindow.document.write('</body></html>');
+            printWindow.document.close();
+            // Use timeout to ensure styles are loaded before printing
+            setTimeout(() => {
+                printWindow.print();
+                printWindow.close();
+            }, 500); // Adjust timeout if needed
+        }
+
+        // Main print function (called by buttons)
+        async function printInvoice(invoiceId) {
+             if (!invoiceId) {
+                 alert("No invoice selected or saved to print.");
+                 return;
+             }
+            console.log(`Printing invoice ID: ${invoiceId}`);
+
+             if (!db) { alert("Database not ready."); return; }
+
+             const transaction = db.transaction(['invoices', 'invoiceItems'], 'readonly');
+             const invoicesStore = transaction.objectStore('invoices');
+             const itemsStore = transaction.objectStore('invoiceItems');
+             const itemIndex = itemsStore.index('invoiceId');
+
+             const invoiceRequest = invoicesStore.get(invoiceId);
+
+             invoiceRequest.onsuccess = (e) => {
+                 const invoiceData = e.target.result;
+                 if (!invoiceData) {
+                     alert("Invoice not found.");
+                     return;
+                 }
+
+                 const itemsRequest = itemIndex.getAll(invoiceId);
+                 itemsRequest.onsuccess = (e2) => {
+                     const itemsData = e2.target.result;
+
+                     // Populate the hidden template
+                     const printTemplate = document.getElementById('invoicePrintTemplate');
+                     populateInvoiceTemplate(printTemplate, invoiceData, itemsData);
+
+                     // Trigger the browser's print dialog
+                     triggerPrint('invoicePrintTemplate');
+                 };
+                 itemsRequest.onerror = (e2) => {
+                      console.error("Error fetching invoice items for print:", e2.target.error);
+                      alert("Error fetching invoice items.");
+                 }
+             };
+             invoiceRequest.onerror = (e) => {
+                 console.error("Error fetching invoice for print:", e.target.error);
+                 alert("Error fetching invoice details.");
+             };
+        }
+
+        // --- Utility Functions ---
+        function numberToWords(num) {
+            const a = ['', 'ONE ', 'TWO ', 'THREE ', 'FOUR ', 'FIVE ', 'SIX ', 'SEVEN ', 'EIGHT ', 'NINE ', 'TEN ', 'ELEVEN ', 'TWELVE ', 'THIRTEEN ', 'FOURTEEN ', 'FIFTEEN ', 'SIXTEEN ', 'SEVENTEEN ', 'EIGHTEEN ', 'NINETEEN '];
+            const b = ['', '', 'TWENTY', 'THIRTY', 'FORTY', 'FIFTY', 'SIXTY', 'SEVENTY', 'EIGHTY', 'NINETY'];
+
+             // Function to convert a number less than 1000
+             function convert(n) {
+                 let str = '';
+                 if (n >= 100) {
+                     str += a[Math.floor(n / 100)] + 'HUNDRED ';
+                     n %= 100;
+                 }
+                 if (n >= 20) {
+                     str += b[Math.floor(n / 10)] + ' ';
+                     n %= 10;
+                 }
+                 if (n > 0) {
+                     str += a[n];
+                 }
+                 return str.trim() + ' '; // Add space at the end
+             }
+
+             if (num === 0) return 'ZERO';
+             num = Math.round(num * 100) / 100; // Round to 2 decimal places
+             let integerPart = Math.trunc(num);
+             let decimalPart = Math.round((num - integerPart) * 100);
+
+             let words = '';
+
+             if (integerPart >= 10000000) { // Crores
+                 words += convert(Math.floor(integerPart / 10000000)) + 'CRORE ';
+                 integerPart %= 10000000;
+             }
+             if (integerPart >= 100000) { // Lakhs
+                 words += convert(Math.floor(integerPart / 100000)) + 'LAKH ';
+                 integerPart %= 100000;
+             }
+             if (integerPart >= 1000) { // Thousands
+                 words += convert(Math.floor(integerPart / 1000)) + 'THOUSAND ';
+                 integerPart %= 1000;
+             }
+             if (integerPart > 0) { // Hundreds, tens, ones
+                 words += convert(integerPart);
+             }
+
+             words = words.trim(); // Remove trailing space from integer part conversion
+
+              // Add decimal part if exists
+             if (decimalPart > 0) {
+                 words += (words ? ' AND ' : '') + convert(decimalPart).trim() + ' PAISE';
+             } else if (words) {
+                 // Optionally add "ONLY" if no decimal part
+                 // words += ' ONLY';
+             }
+
+             return words.toUpperCase().replace(/\s+/g, ' '); // Ensure single spaces
+        }
+
+         function renderPagination(containerId, currentPage, totalItems, callback) {
+             const paginationContainer = document.getElementById(containerId);
+             if (!paginationContainer) return;
+
+             paginationContainer.innerHTML = ''; // Clear existing pagination
+             const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+
+             if (totalPages <= 1) return; // No pagination needed for 0 or 1 page
+
+             const maxVisiblePages = 5; // Max number of page links to show (e.g., 1 ... 4 5 6 ... 10)
+
+             let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+             let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+             // Adjust startPage if endPage reaches the limit first
+             startPage = Math.max(1, endPage - maxVisiblePages + 1);
+
+
+             const createButton = (text, page, isDisabled = false, isActive = false) => {
+                 const button = document.createElement('button');
+                 button.innerHTML = text;
+                 button.disabled = isDisabled;
+                 button.className = `px-3 py-1 text-sm rounded-md border ${
+                    isDisabled ? 'bg-gray-100 text-gray-400 cursor-not-allowed' :
+                    isActive ? 'bg-indigo-600 text-white border-indigo-600' :
+                    'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                 }`;
+                  if (!isDisabled && !isActive) {
+                      button.onclick = () => callback(page);
+                  }
+                 return button;
+             };
+
+             const wrapper = document.createElement('div');
+             wrapper.className = 'flex items-center justify-between w-full'; // Changed to justify-between
+
+              // Info text on the left
+             const infoText = document.createElement('span');
+             const firstItem = (currentPage - 1) * ITEMS_PER_PAGE + 1;
+             const lastItem = Math.min(currentPage * ITEMS_PER_PAGE, totalItems);
+             infoText.textContent = `Showing ${firstItem}-${lastItem} of ${totalItems} results`;
+             infoText.className = 'text-sm text-gray-600';
+             wrapper.appendChild(infoText);
+
+             // Buttons container on the right
+             const buttonsContainer = document.createElement('div');
+             buttonsContainer.className = 'flex items-center space-x-1';
+
+
+             // Previous Button
+             buttonsContainer.appendChild(createButton('&laquo; Prev', currentPage - 1, currentPage === 1));
+
+             // Page Number Buttons
+             if (startPage > 1) {
+                 buttonsContainer.appendChild(createButton('1', 1));
+                 if (startPage > 2) {
+                      const dots = document.createElement('span');
+                      dots.textContent = '...';
+                      dots.className = 'px-2 py-1 text-sm text-gray-500';
+                      buttonsContainer.appendChild(dots);
+                 }
+             }
+
+             for (let i = startPage; i <= endPage; i++) {
+                 buttonsContainer.appendChild(createButton(i.toString(), i, false, i === currentPage));
+             }
+
+              if (endPage < totalPages) {
+                  if (endPage < totalPages - 1) {
+                     const dots = document.createElement('span');
+                     dots.textContent = '...';
+                     dots.className = 'px-2 py-1 text-sm text-gray-500';
+                     buttonsContainer.appendChild(dots);
+                  }
+                 buttonsContainer.appendChild(createButton(totalPages.toString(), totalPages));
+             }
+
+             // Next Button
+             buttonsContainer.appendChild(createButton('Next &raquo;', currentPage + 1, currentPage === totalPages));
+
+             wrapper.appendChild(buttonsContainer); // Add buttons to the right side of the wrapper
+             paginationContainer.appendChild(wrapper);
+        }
+
+        // --- Initial Load Call ---
+        // (Moved inside DOMContentLoaded onsuccess)
+
+    </script>
+
+</body>
+</html>

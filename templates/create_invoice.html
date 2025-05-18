@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container py-4">
+    <h3 class="mb-4">Create Invoice</h3>
+    <form method="post" id="invoiceForm" autocomplete="off">
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label for="customer_id" class="form-label">Customer</label>
+                <select class="form-select" id="customer_id" name="customer_id" required>
+                    <option value="">Select Customer</option>
+                    {% for customer in customers %}
+                    <option value="{{ customer.id }}">{{ customer.name }} ({{ customer.email }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label for="date" class="form-label">Date</label>
+                <input type="date" class="form-control" id="date" name="date" value="{{ now().strftime('%Y-%m-%d') if now else '' }}" required>
+            </div>
+            <div class="col-md-2">
+                <label for="payment_mode" class="form-label">Payment Mode</label>
+                <select class="form-select" id="payment_mode" name="payment_mode" required>
+                    <option value="">Select Payment Mode</option>
+                    <option value="Cash">Cash</option>
+                    <option value="Card">Card</option>
+                    <option value="UPI">UPI</option>
+                    <option value="Bank Transfer">Bank Transfer</option>
+                    <option value="Cheque">Cheque</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label for="vehicle_no" class="form-label">Vehicle No</label>
+                <input type="text" class="form-control" id="vehicle_no" name="vehicle_no">
+            </div>
+            <div class="col-md-2">
+                <label for="delivery_date" class="form-label">Delivery Date</label>
+                <input type="date" class="form-control" id="delivery_date" name="delivery_date">
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label for="destination" class="form-label">Destination</label>
+                <input type="text" class="form-control" id="destination" name="destination">
+            </div>
+            <div class="col-md-2">
+                <label for="transport_charges" class="form-label">Transport Charges</label>
+                <input type="number" step="0.01" min="0" class="form-control" id="transport_charges" name="transport_charges" value="0">
+            </div>
+            <div class="col-md-2">
+                <label for="round_off" class="form-label">Round Off</label>
+                <input type="number" step="0.01" class="form-control" id="round_off" name="round_off" value="0">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Invoice No</label>
+                <input type="text" class="form-control" value="{{ next_invoice_number }}" readonly>
+            </div>
+        </div>
+        <hr>
+        <h5>Line Items</h5>
+        <div class="table-responsive mb-3">
+            <table class="table table-bordered align-middle" id="itemsTable">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>HSN</th>
+                        <th>GST %</th>
+                        <th>Qty</th>
+                        <th>Rate</th>
+                        <th>Discount %</th>
+                        <th>Amount</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="itemsBody">
+                </tbody>
+            </table>
+            <button type="button" class="btn btn-success btn-sm" id="addRowBtn"><i class="fas fa-plus"></i> Add Item</button>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-3 ms-auto">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="mb-2"><strong>Subtotal:</strong> ₹<span id="subtotal">0.00</span></div>
+                        <div class="mb-2"><strong>Total Taxable:</strong> ₹<span id="total_taxable">0.00</span></div>
+                        <div class="mb-2"><strong>CGST:</strong> ₹<span id="total_cgst">0.00</span></div>
+                        <div class="mb-2"><strong>SGST:</strong> ₹<span id="total_sgst">0.00</span></div>
+                        <div class="mb-2"><strong>Grand Total:</strong> ₹<span id="grand_total">0.00</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <input type="hidden" name="items" id="itemsInput">
+        <button type="submit" class="btn btn-primary">Save Invoice</button>
+        <a href="{{ url_for('invoices') }}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+var products = {{ products|default([])|tojson|safe }};
+function createRow(productId = '', qty = 1, rate = '', discount = 0) {
+    var productOptions = '<option value="">Select</option>';
+    products.forEach(function(p) {
+        productOptions += `<option value="${p.id}" data-hsn="${p.hsn}" data-gst="${p.gst_percent}" data-rate="${p.price}">${p.name}</option>`;
+    });
+    return `<tr>
+        <td><select class="form-select product-select" required>${productOptions}</select></td>
+        <td class="hsn"></td>
+        <td class="gst"></td>
+        <td><input type="number" class="form-control qty" min="1" value="${qty}" required></td>
+        <td><input type="number" class="form-control rate" min="0" step="0.01" value="${rate}" required></td>
+        <td><input type="number" class="form-control discount" min="0" max="100" step="0.01" value="${discount}"></td>
+        <td class="amount">0.00</td>
+        <td><button type="button" class="btn btn-danger btn-sm remove-row"><i class="fas fa-trash"></i></button></td>
+    </tr>`;
+}
+function recalc() {
+    var subtotal = 0, total_taxable = 0, total_cgst = 0, total_sgst = 0, grand_total = 0;
+    var items = [];
+    $('#itemsBody tr').each(function() {
+        var $row = $(this);
+        var productId = $row.find('.product-select').val();
+        var product = products.find(function(p) { return p.id == productId; });
+        var qty = parseFloat($row.find('.qty').val()) || 0;
+        var rate = parseFloat($row.find('.rate').val()) || 0;
+        var discount = parseFloat($row.find('.discount').val()) || 0;
+        if (!productId || qty <= 0) return;
+        var hsn = product.hsn;
+        var gst = product.gst_percent;
+        var price = qty * rate;
+        var discAmt = price * (discount / 100);
+        var taxable = price - discAmt;
+        var cgst = taxable * (gst / 2) / 100;
+        var sgst = taxable * (gst / 2) / 100;
+        var amount = taxable + cgst + sgst;
+        subtotal += price;
+        total_taxable += taxable;
+        total_cgst += cgst;
+        total_sgst += sgst;
+        grand_total += amount;
+        $row.find('.hsn').text(hsn);
+        $row.find('.gst').text(gst);
+        $row.find('.amount').text(amount.toFixed(2));
+        items.push({product_id: productId, quantity: qty, rate: rate, discount_percent: discount});
+    });
+    var transport = parseFloat($('#transport_charges').val()) || 0;
+    var roundoff = parseFloat($('#round_off').val()) || 0;
+    grand_total += transport + roundoff;
+    $('#subtotal').text(subtotal.toFixed(2));
+    $('#total_taxable').text(total_taxable.toFixed(2));
+    $('#total_cgst').text(total_cgst.toFixed(2));
+    $('#total_sgst').text(total_sgst.toFixed(2));
+    $('#grand_total').text(grand_total.toFixed(2));
+    $('#itemsInput').val(JSON.stringify(items));
+}
+$(function() {
+    $('#addRowBtn').click(function() {
+        $('#itemsBody').append(createRow());
+    });
+    $('#itemsBody').on('change', '.product-select', function() {
+        var $row = $(this).closest('tr');
+        var product = products.find(function(p) { return p.id == $(this).val(); }.bind(this));
+        if (product) {
+            $row.find('.rate').val(product.price);
+            $row.find('.hsn').text(product.hsn);
+            $row.find('.gst').text(product.gst_percent);
+        } else {
+            $row.find('.rate').val('');
+            $row.find('.hsn').text('');
+            $row.find('.gst').text('');
+        }
+        recalc();
+    });
+    $('#itemsBody').on('input', '.qty, .rate, .discount', recalc);
+    $('#itemsBody').on('click', '.remove-row', function() {
+        $(this).closest('tr').remove();
+        recalc();
+    });
+    $('#transport_charges, #round_off').on('input', recalc);
+    $('#invoiceForm').on('submit', function() {
+        recalc();
+        if ($('#itemsBody tr').length === 0) {
+            alert('Please add at least one line item.');
+            return false;
+        }
+        return true;
+    });
+    // Add first row by default
+    $('#addRowBtn').click();
+});
+</script>
+{% endblock %} 

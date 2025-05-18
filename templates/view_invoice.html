@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3>Invoice #{{ invoice.invoice_number }}</h3>
+        <div>
+            <a href="{{ url_for('print_invoice_a4', invoice_id=invoice.id) }}" class="btn btn-secondary">
+                <i class="fas fa-print"></i> Print A4
+            </a>
+            <a href="{{ url_for('print_receipt', invoice_id=invoice.id) }}" class="btn btn-info">
+                <i class="fas fa-receipt"></i> Print Receipt
+            </a>
+            {% if session.get('user_role') == 'admin' %}
+            <form action="{{ url_for('delete_invoice', id=invoice.id) }}" method="post" style="display:inline;" onsubmit="return confirm('Delete this invoice?');">
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Customer Details</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Name:</strong> {{ customer.name }}</p>
+                    <p><strong>Email:</strong> {{ customer.email }}</p>
+                    <p><strong>Phone:</strong> {{ customer.phone }}</p>
+                    <p><strong>Address:</strong> {{ customer.address }}</p>
+                    {% if customer.gstin %}
+                    <p><strong>GSTIN:</strong> {{ customer.gstin }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Invoice Details</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Date:</strong> {{ invoice.date.strftime('%d-%m-%Y') }}</p>
+                    <p><strong>Payment Mode:</strong> {{ invoice.payment_mode }}</p>
+                    {% if invoice.vehicle_no %}
+                    <p><strong>Vehicle No:</strong> {{ invoice.vehicle_no }}</p>
+                    {% endif %}
+                    {% if invoice.delivery_date %}
+                    <p><strong>Delivery Date:</strong> {{ invoice.delivery_date.strftime('%d-%m-%Y') }}</p>
+                    {% endif %}
+                    {% if invoice.destination %}
+                    <p><strong>Destination:</strong> {{ invoice.destination }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Items</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>HSN</th>
+                            <th>GST %</th>
+                            <th>Qty</th>
+                            <th>Rate</th>
+                            <th>Discount %</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in items %}
+                        <tr>
+                            <td>{{ item.product.name }}</td>
+                            <td>{{ item.hsn }}</td>
+                            <td>{{ item.gst_percent }}%</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>₹{{ '%.2f'|format(item.rate) }}</td>
+                            <td>{{ item.discount_percent }}%</td>
+                            <td>₹{{ '%.2f'|format(item.amount) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="6" class="text-end"><strong>Transport Charges:</strong></td>
+                            <td>₹{{ '%.2f'|format(invoice.transport_charges) }}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="6" class="text-end"><strong>Round Off:</strong></td>
+                            <td>₹{{ '%.2f'|format(invoice.round_off) }}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="6" class="text-end"><strong>Total Amount:</strong></td>
+                            <td><strong>₹{{ '%.2f'|format(invoice.total_amount) }}</strong></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center">
+        <a href="{{ url_for('invoices') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Invoices
+        </a>
+    </div>
+</div>
+{% endblock %} 

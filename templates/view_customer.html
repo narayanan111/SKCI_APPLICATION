@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-3">
+        <div class="col-md-8">
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0">Customer Details</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-2">
+                        <div class="col-md-6">
+                            <strong>Name:</strong> {{ customer.name }}<br>
+                            <strong>Email:</strong> {{ customer.email }}<br>
+                            <strong>Phone:</strong> {{ customer.phone }}<br>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>GSTIN:</strong> {{ customer.gstin or '-' }}<br>
+                            <strong>Credit Limit:</strong> ₹{{ '%.2f'|format(customer.credit_limit) }}<br>
+                            <strong>Outstanding Balance:</strong> ₹{{ '%.2f'|format(customer.outstanding_balance) }}<br>
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <strong>Address:</strong><br>
+                        <span>{{ customer.address }}</span>
+                    </div>
+                    <a href="{{ url_for('customers') }}" class="btn btn-secondary btn-sm mt-2">Back to Customers</a>
+                </div>
+            </div>
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Invoices</h5>
+                </div>
+                <div class="card-body">
+                    {% if invoices %}
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Invoice No</th>
+                                    <th>Date</th>
+                                    <th>Total</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for invoice in invoices %}
+                                <tr>
+                                    <td>{{ invoice.invoice_number }}</td>
+                                    <td>{{ invoice.date.strftime('%d-%m-%Y') }}</td>
+                                    <td>₹{{ '%.2f'|format(invoice.total_amount) }}</td>
+                                    <td>
+                                        <a href="{{ url_for('view_invoice', invoice_id=invoice.id) }}" class="btn btn-info btn-sm" title="View"><i class="fas fa-eye"></i></a>
+                                        <a href="{{ url_for('print_invoice_a4', invoice_id=invoice.id) }}" class="btn btn-secondary btn-sm" title="Print"><i class="fas fa-print"></i></a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                        <div class="text-muted">No invoices found for this customer.</div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Payment History</h5>
+                </div>
+                <div class="card-body">
+                    {% if payments %}
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Amount</th>
+                                    <th>Mode</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for payment in payments %}
+                                <tr>
+                                    <td>{{ payment.date.strftime('%d-%m-%Y') }}</td>
+                                    <td>₹{{ '%.2f'|format(payment.amount) }}</td>
+                                    <td>{{ payment.payment_mode or '-' }}</td>
+                                    <td>{{ payment.description }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                        <div class="text-muted">No payments found for this customer.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        $('#transactionsTable').DataTable({
+            responsive: true,
+            order: [[0, 'desc']]
+        });
+    });
+</script>
+{% endblock %} 

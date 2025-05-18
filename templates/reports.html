@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Reports</h1>
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-chart-bar me-1"></i>
+            Transaction Reports
+        </div>
+        <div class="card-body">
+            <form method="GET" class="mb-4">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label for="start_date" class="form-label">Start Date</label>
+                        <input type="date" class="form-control" id="start_date" name="start_date" value="{{ request.args.get('start_date', '') }}" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="end_date" class="form-label">End Date</label>
+                        <input type="date" class="form-control" id="end_date" name="end_date" value="{{ request.args.get('end_date', '') }}" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="customer_id" class="form-label">Customer</label>
+                        <select class="form-select" id="customer_id" name="customer_id">
+                            <option value="">All Customers</option>
+                            {% for customer in customers %}
+                            <option value="{{ customer.id }}" {% if request.args.get('customer_id')|int == customer.id %}selected{% endif %}>
+                                {{ customer.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-filter"></i> Filter
+                    </button>
+                    <a href="{{ url_for('reports') }}" class="btn btn-secondary">
+                        <i class="fas fa-sync"></i> Reset
+                    </a>
+                </div>
+            </form>
+
+            {% if transactions %}
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Transactions</h5>
+                            <h2 class="card-text">{{ transactions|length }}</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Payments</h5>
+                            <h2 class="card-text">₹{{ "%.2f"|format(total_payments) }}</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-danger text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Credits</h5>
+                            <h2 class="card-text">₹{{ "%.2f"|format(total_credits) }}</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Net Balance</h5>
+                            <h2 class="card-text">₹{{ "%.2f"|format(net_balance) }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table id="transactionsTable" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Customer</th>
+                            <th>Type</th>
+                            <th>Amount</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for transaction in transactions %}
+                        <tr>
+                            <td>{{ transaction.date.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>{{ transaction.customer.name }}</td>
+                            <td>
+                                {% if transaction.type == 'credit' %}
+                                <span class="badge bg-danger">Credit</span>
+                                {% else %}
+                                <span class="badge bg-success">Payment</span>
+                                {% endif %}
+                            </td>
+                            <td>₹{{ "%.2f"|format(transaction.amount) }}</td>
+                            <td>{{ transaction.description }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> No transactions found for the selected criteria.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        $('#transactionsTable').DataTable({
+            responsive: true,
+            order: [[0, 'desc']]
+        });
+    });
+</script>
+{% endblock %} 

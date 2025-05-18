@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Instant Bill Receipt</title>
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 15px;
+            background: #fff;
+            color: #000;
+        }
+        .receipt {
+            width: 320px;
+            margin: 0 auto;
+            padding: 10px;
+            border: 1px dashed #333;
+            background: #fff;
+        }
+        .center {
+            text-align: center;
+        }
+        .bold {
+            font-weight: bold;
+        }
+        .items-table, .items-table th, .items-table td {
+            border: none;
+            border-collapse: collapse;
+        }
+        .items-table th, .items-table td {
+            padding: 2px 0;
+        }
+        .items-table th {
+            border-bottom: 1px dashed #333;
+        }
+        .totals {
+            margin-top: 10px;
+        }
+        .totals td {
+            padding: 2px 0;
+        }
+        .dashed {
+            border-top: 1px dashed #333;
+            margin: 8px 0;
+        }
+        .print-btn {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+            padding: 6px;
+            font-size: 16px;
+            background: #222;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+        @media print {
+            .print-btn { display: none; }
+            .receipt { box-shadow: none; border: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="receipt">
+        <a href="{{ url_for('view_invoice', invoice_id=invoice.id) }}" class="print-btn" style="background:#888; color:#fff; text-align:center; margin-bottom:8px; text-decoration:none;">&larr; Back</a>
+        <button class="print-btn" onclick="window.print()">Print</button>
+        <div class="center bold">SRI KRISHNA COTTAGE INDUSTRIES</div>
+        <div class="center">E Bellathi Rd, Karamadai, Tamil Nadu 641104</div>
+        <div class="center">karamadaikrishnas98@gmail.com</div>
+        <div class="center">PH - +91 9384430633</div>
+        <div class="center">GSTIN/UIN: 33AXFPK5612A1Z4</div>
+        <div class="center dashed"></div>
+        <table width="100%">
+            <tr>
+                <td>Bill No.: <span class="bold">{{ invoice.invoice_number }}</span></td>
+                <td align="right">Date: <span class="bold">{{ invoice.date.strftime('%d/%m/%Y') }}</span></td>
+            </tr>
+        </table>
+        <div class="dashed"></div>
+        <table class="items-table" width="100%">
+            <thead>
+                <tr>
+                    <th align="left">Item Name</th>
+                    <th align="center">Qty</th>
+                    <th align="right">Rate</th>
+                    <th align="right">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% set total = 0 %}
+                {% for item in items %}
+                <tr>
+                    <td>{{ item.product.name }}</td>
+                    <td align="center">{{ '%.2f'|format(item.quantity) }}</td>
+                    <td align="right">{{ '%.2f'|format(item.rate) }}</td>
+                    <td align="right">{{ '%.2f'|format(item.amount) }}</td>
+                </tr>
+                {% set total = total + item.amount %}
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="dashed"></div>
+        <table width="100%" class="totals">
+            <tr>
+                <td>Amount</td>
+                <td align="right">{{ '%.2f'|format(total) }}</td>
+            </tr>
+            <tr>
+                <td>CGST @ {{ '%.2f'|format(items[0].gst_percent/2 if items else 0) }}%</td>
+                <td align="right">{{ '%.2f'|format((total * (items[0].gst_percent/2)/100) if items else 0) }}</td>
+            </tr>
+            <tr>
+                <td>SGST @ {{ '%.2f'|format(items[0].gst_percent/2 if items else 0) }}%</td>
+                <td align="right">{{ '%.2f'|format((total * (items[0].gst_percent/2)/100) if items else 0) }}</td>
+            </tr>
+            <tr class="bold">
+                <td>Grand Total</td>
+                <td align="right">{{ '%.2f'|format(invoice.total_amount) }}</td>
+            </tr>
+        </table>
+        <div class="dashed"></div>
+        <div class="center">PLEASE VISIT AGAIN</div>
+        <div class="center">THANK YOU</div>
+    </div>
+</body>
+</html> 
