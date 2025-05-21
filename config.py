@@ -12,10 +12,10 @@ class Config:
     
     # Application configuration
     APP_NAME = 'Customer Management System'
-    ADMIN_USERNAME = 'Krishna'
-    ADMIN_PASSWORD = 'Krishna@123'
-    STAFF_USERNAME = 'Raja'
-    STAFF_PASSWORD = 'Raja@123'
+    ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME')
+    ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD')
+    STAFF_USERNAME = os.environ.get('STAFF_USERNAME')
+    STAFF_PASSWORD = os.environ.get('STAFF_PASSWORD')
     
     # Security configuration
     PASSWORD_SALT = os.environ.get('PASSWORD_SALT') or 'your-password-salt-here'
